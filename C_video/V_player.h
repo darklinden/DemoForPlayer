@@ -10,6 +10,7 @@
 #import <AVFoundation/AVFoundation.h>
 
 @interface V_player : UIView
+- (void)play:(NSURL *)url;
 - (AVPlayer*)player;
 - (void)setPlayer:(AVPlayer *)player;
 @end

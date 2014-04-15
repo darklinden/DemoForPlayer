@@ -13,6 +13,7 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <GLKit/GLKit.h>
 #import "C_video.h"
+#import "VC_player.h"
 
 @interface VC_root () <PBJVisionDelegate, UIGestureRecognizerDelegate>
 @property (nonatomic,   weak) IBOutlet UIView *previewView;
@@ -87,12 +88,12 @@
         [vision setCameraDevice:PBJCameraDeviceFront];
     }
     
-    //[vision setCaptureSessionPreset:AVCaptureSessionPreset640x480];
+    [vision setCaptureSessionPreset:AVCaptureSessionPreset640x480];
     [vision setCameraMode:PBJCameraModeVideo];
     [vision setCameraOrientation:PBJCameraOrientationPortrait];
     [vision setFocusMode:PBJFocusModeContinuousAutoFocus];
-//    [vision setOutputFormat:PBJOutputFormatSquare];
-//    [vision setVideoRenderingEnabled:YES];
+    [vision setOutputFormat:PBJOutputFormatSquare];
+    [vision setVideoRenderingEnabled:YES];
 }
 
 #pragma mark - ibaction
@@ -121,6 +122,11 @@
 - (IBAction)pBtn_save_clicked:(id)sender {
     [UIApplication sharedApplication].idleTimerDisabled = NO;
     [[PBJVision sharedInstance] endVideoCapture];
+}
+
+- (IBAction)pBtn_play_save_clicked:(id)sender {
+    NSString *des = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"des.mov"];
+    [VC_player play:[NSURL fileURLWithPath:des]];
 }
 
 - (void)_handleFocusTapGesterRecognizer:(UIGestureRecognizer *)gestureRecognizer
@@ -158,7 +164,6 @@
 
 - (void)visionSessionDidStop:(PBJVision *)vision
 {
-    [_previewView removeFromSuperview];
 }
 
 #pragma mark - 焦点和曝光
@@ -238,12 +243,12 @@
     mark.layer_watermark = img_layer;
     
     NSError *err = nil;
-    [C_video watermark_video_src:[NSURL fileURLWithPath:src]
-                             des:[NSURL fileURLWithPath:des]
-                            mark:mark
-                           error:&err];
+//    [C_video watermark_video_src:[NSURL fileURLWithPath:src]
+//                             des:[NSURL fileURLWithPath:des]
+//                            mark:mark
+//                           error:&err];
     NSLog(@"%@", err);
-//    [C_video loadVideoByPath:src andSavePath:des];
+    [C_video loadVideoByPath:src andSavePath:des];
 }
 
 @end

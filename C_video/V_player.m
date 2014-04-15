@@ -15,6 +15,13 @@
     return [AVPlayerLayer class];
 }
 
+- (void)play:(NSURL *)url
+{
+    AVPlayer *player = [[AVPlayer alloc] initWithURL:url];
+    [self setPlayer:player];
+    [player play];
+}
+
 - (AVPlayer*)player
 {
     return [(AVPlayerLayer *)[self layer] player];
@@ -23,6 +30,12 @@
 - (void)setPlayer:(AVPlayer *)player
 {
     [(AVPlayerLayer *)[self layer] setPlayer:player];
+}
+
+- (void)removeFromSuperview
+{
+    [self setPlayer:nil];
+    [super removeFromSuperview];
 }
 
 @end

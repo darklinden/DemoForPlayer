@@ -41,6 +41,8 @@
 		20707E2C18FD1B4200C37DE6 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20707E2B18FD1B4200C37DE6 /* MobileCoreServices.framework */; };
 		20707E2E18FD1B4A00C37DE6 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20707E2D18FD1B4A00C37DE6 /* CoreMedia.framework */; };
 		20707E3018FD1B5000C37DE6 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20707E2F18FD1B5000C37DE6 /* AVFoundation.framework */; };
+		20707E4118FD2E9E00C37DE6 /* VC_player.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707E3F18FD2E9E00C37DE6 /* VC_player.m */; };
+		20707E4218FD2E9E00C37DE6 /* VC_player.xib in Resources */ = {isa = PBXBuildFile; fileRef = 20707E4018FD2E9E00C37DE6 /* VC_player.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -98,6 +100,9 @@
 		20707E2B18FD1B4200C37DE6 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		20707E2D18FD1B4A00C37DE6 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		20707E2F18FD1B5000C37DE6 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		20707E3E18FD2E9E00C37DE6 /* VC_player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VC_player.h; sourceTree = "<group>"; };
+		20707E3F18FD2E9E00C37DE6 /* VC_player.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VC_player.m; sourceTree = "<group>"; };
+		20707E4018FD2E9E00C37DE6 /* VC_player.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VC_player.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -179,6 +184,9 @@
 				20707E1918FD0C7200C37DE6 /* VC_root.h */,
 				20707E1A18FD0C7200C37DE6 /* VC_root.m */,
 				20707E1B18FD0C7200C37DE6 /* VC_root.xib */,
+				20707E3E18FD2E9E00C37DE6 /* VC_player.h */,
+				20707E3F18FD2E9E00C37DE6 /* VC_player.m */,
+				20707E4018FD2E9E00C37DE6 /* VC_player.xib */,
 				20107F2418FBB32700641D41 /* Images.xcassets */,
 				20107F1918FBB32700641D41 /* Supporting Files */,
 			);
@@ -339,6 +347,7 @@
 				20707E2518FD190500C37DE6 /* Shader.fsh in Resources */,
 				20707E2618FD190500C37DE6 /* Shader.vsh in Resources */,
 				20707E1D18FD0C7200C37DE6 /* VC_root.xib in Resources */,
+				20707E4218FD2E9E00C37DE6 /* VC_player.xib in Resources */,
 				20707E1818FD0C4F00C37DE6 /* logo.png in Resources */,
 				20707E1518FD0C4F00C37DE6 /* README.md in Resources */,
 				20107F1D18FBB32700641D41 /* InfoPlist.strings in Resources */,
@@ -363,6 +372,7 @@
 			files = (
 				20707E1618FD0C4F00C37DE6 /* Shader.fsh in Sources */,
 				20707E1218FD0C4F00C37DE6 /* PBJMediaWriter.m in Sources */,
+				20707E4118FD2E9E00C37DE6 /* VC_player.m in Sources */,
 				20707E1118FD0C4F00C37DE6 /* PBJGLProgram.m in Sources */,
 				20107F2318FBB32700641D41 /* AppDelegate.m in Sources */,
 				20707E2018FD0E4900C37DE6 /* PBJFocusView.m in Sources */,
