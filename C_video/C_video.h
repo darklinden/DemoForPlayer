@@ -23,11 +23,15 @@
 @property (nonatomic, assign) CMTimeRange range;
 @property (nonatomic, strong) CALayer     *layer_watermark;
 
++ (id)watermark;
+
 @end
 
 @interface C_video : NSObject
 
 + (int64_t)video_length:(NSURL *)videoUrl;
+
++ (CMTimeRange)video_range:(NSURL *)videoUrl;
 
 + (void)set_thumb_image:(NSURL*)url
                 in_view:(UIImageView *)imgV
@@ -55,5 +59,7 @@
                         des:(NSURL *)des
                        mark:(O_watermark *)mark
                       error:(NSError **)error;
+
++ (void) loadVideoByPath:(NSString*) v_strVideoPath andSavePath:(NSString*) v_strSavePath;
 
 @end

@@ -19,9 +19,28 @@
 		20107F2E18FBB32700641D41 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20107F1618FBB32700641D41 /* UIKit.framework */; };
 		20107F3618FBB32700641D41 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 20107F3418FBB32700641D41 /* InfoPlist.strings */; };
 		20107F3818FBB32700641D41 /* DemoForPlayerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 20107F3718FBB32700641D41 /* DemoForPlayerTests.m */; };
-		20107F4618FBB38100641D41 /* C_video.m in Sources */ = {isa = PBXBuildFile; fileRef = 20107F4318FBB38100641D41 /* C_video.m */; };
-		20107F4718FBB38100641D41 /* V_player.m in Sources */ = {isa = PBXBuildFile; fileRef = 20107F4518FBB38100641D41 /* V_player.m */; };
-		20107F4A18FBBB7D00641D41 /* O_main_thread_host.m in Sources */ = {isa = PBXBuildFile; fileRef = 20107F4918FBBB7D00641D41 /* O_main_thread_host.m */; };
+		20707E0F18FD0C4F00C37DE6 /* C_video.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707DFD18FD0C4F00C37DE6 /* C_video.m */; };
+		20707E1018FD0C4F00C37DE6 /* V_player.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707DFF18FD0C4F00C37DE6 /* V_player.m */; };
+		20707E1118FD0C4F00C37DE6 /* PBJGLProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707E0218FD0C4F00C37DE6 /* PBJGLProgram.m */; };
+		20707E1218FD0C4F00C37DE6 /* PBJMediaWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707E0418FD0C4F00C37DE6 /* PBJMediaWriter.m */; };
+		20707E1318FD0C4F00C37DE6 /* PBJVision.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707E0618FD0C4F00C37DE6 /* PBJVision.m */; };
+		20707E1418FD0C4F00C37DE6 /* PBJVisionUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707E0818FD0C4F00C37DE6 /* PBJVisionUtilities.m */; };
+		20707E1518FD0C4F00C37DE6 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 20707E0918FD0C4F00C37DE6 /* README.md */; };
+		20707E1618FD0C4F00C37DE6 /* Shader.fsh in Sources */ = {isa = PBXBuildFile; fileRef = 20707E0B18FD0C4F00C37DE6 /* Shader.fsh */; };
+		20707E1718FD0C4F00C37DE6 /* Shader.vsh in Sources */ = {isa = PBXBuildFile; fileRef = 20707E0C18FD0C4F00C37DE6 /* Shader.vsh */; };
+		20707E1818FD0C4F00C37DE6 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 20707E0E18FD0C4F00C37DE6 /* logo.png */; };
+		20707E1C18FD0C7200C37DE6 /* VC_root.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707E1A18FD0C7200C37DE6 /* VC_root.m */; };
+		20707E1D18FD0C7200C37DE6 /* VC_root.xib in Resources */ = {isa = PBXBuildFile; fileRef = 20707E1B18FD0C7200C37DE6 /* VC_root.xib */; };
+		20707E2018FD0E4900C37DE6 /* PBJFocusView.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707E1F18FD0E4900C37DE6 /* PBJFocusView.m */; };
+		20707E2218FD139000C37DE6 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20707E2118FD139000C37DE6 /* AssetsLibrary.framework */; };
+		20707E2418FD139D00C37DE6 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20707E2318FD139D00C37DE6 /* GLKit.framework */; };
+		20707E2518FD190500C37DE6 /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 20707E0B18FD0C4F00C37DE6 /* Shader.fsh */; };
+		20707E2618FD190500C37DE6 /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 20707E0C18FD0C4F00C37DE6 /* Shader.vsh */; };
+		20707E2818FD1B3100C37DE6 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20707E2718FD1B3100C37DE6 /* ImageIO.framework */; };
+		20707E2A18FD1B3900C37DE6 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20707E2918FD1B3900C37DE6 /* CoreVideo.framework */; };
+		20707E2C18FD1B4200C37DE6 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20707E2B18FD1B4200C37DE6 /* MobileCoreServices.framework */; };
+		20707E2E18FD1B4A00C37DE6 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20707E2D18FD1B4A00C37DE6 /* CoreMedia.framework */; };
+		20707E3018FD1B5000C37DE6 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20707E2F18FD1B5000C37DE6 /* AVFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,12 +70,34 @@
 		20107F3318FBB32700641D41 /* DemoForPlayerTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DemoForPlayerTests-Info.plist"; sourceTree = "<group>"; };
 		20107F3518FBB32700641D41 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		20107F3718FBB32700641D41 /* DemoForPlayerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoForPlayerTests.m; sourceTree = "<group>"; };
-		20107F4218FBB38100641D41 /* C_video.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = C_video.h; sourceTree = "<group>"; };
-		20107F4318FBB38100641D41 /* C_video.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = C_video.m; sourceTree = "<group>"; };
-		20107F4418FBB38100641D41 /* V_player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V_player.h; sourceTree = "<group>"; };
-		20107F4518FBB38100641D41 /* V_player.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = V_player.m; sourceTree = "<group>"; };
-		20107F4818FBBB7D00641D41 /* O_main_thread_host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = O_main_thread_host.h; sourceTree = "<group>"; };
-		20107F4918FBBB7D00641D41 /* O_main_thread_host.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = O_main_thread_host.m; sourceTree = "<group>"; };
+		20707DFC18FD0C4F00C37DE6 /* C_video.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = C_video.h; sourceTree = "<group>"; };
+		20707DFD18FD0C4F00C37DE6 /* C_video.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = C_video.m; sourceTree = "<group>"; };
+		20707DFE18FD0C4F00C37DE6 /* V_player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V_player.h; sourceTree = "<group>"; };
+		20707DFF18FD0C4F00C37DE6 /* V_player.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = V_player.m; sourceTree = "<group>"; };
+		20707E0118FD0C4F00C37DE6 /* PBJGLProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBJGLProgram.h; sourceTree = "<group>"; };
+		20707E0218FD0C4F00C37DE6 /* PBJGLProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBJGLProgram.m; sourceTree = "<group>"; };
+		20707E0318FD0C4F00C37DE6 /* PBJMediaWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBJMediaWriter.h; sourceTree = "<group>"; };
+		20707E0418FD0C4F00C37DE6 /* PBJMediaWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBJMediaWriter.m; sourceTree = "<group>"; };
+		20707E0518FD0C4F00C37DE6 /* PBJVision.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBJVision.h; sourceTree = "<group>"; };
+		20707E0618FD0C4F00C37DE6 /* PBJVision.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBJVision.m; sourceTree = "<group>"; };
+		20707E0718FD0C4F00C37DE6 /* PBJVisionUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBJVisionUtilities.h; sourceTree = "<group>"; };
+		20707E0818FD0C4F00C37DE6 /* PBJVisionUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBJVisionUtilities.m; sourceTree = "<group>"; };
+		20707E0918FD0C4F00C37DE6 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		20707E0B18FD0C4F00C37DE6 /* Shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.fsh; sourceTree = "<group>"; };
+		20707E0C18FD0C4F00C37DE6 /* Shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.vsh; sourceTree = "<group>"; };
+		20707E0E18FD0C4F00C37DE6 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo.png; sourceTree = "<group>"; };
+		20707E1918FD0C7200C37DE6 /* VC_root.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VC_root.h; sourceTree = "<group>"; };
+		20707E1A18FD0C7200C37DE6 /* VC_root.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VC_root.m; sourceTree = "<group>"; };
+		20707E1B18FD0C7200C37DE6 /* VC_root.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VC_root.xib; sourceTree = "<group>"; };
+		20707E1E18FD0E4900C37DE6 /* PBJFocusView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBJFocusView.h; sourceTree = "<group>"; };
+		20707E1F18FD0E4900C37DE6 /* PBJFocusView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBJFocusView.m; sourceTree = "<group>"; };
+		20707E2118FD139000C37DE6 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
+		20707E2318FD139D00C37DE6 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		20707E2718FD1B3100C37DE6 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
+		20707E2918FD1B3900C37DE6 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		20707E2B18FD1B4200C37DE6 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		20707E2D18FD1B4A00C37DE6 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		20707E2F18FD1B5000C37DE6 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +105,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				20707E3018FD1B5000C37DE6 /* AVFoundation.framework in Frameworks */,
+				20707E2E18FD1B4A00C37DE6 /* CoreMedia.framework in Frameworks */,
+				20707E2C18FD1B4200C37DE6 /* MobileCoreServices.framework in Frameworks */,
+				20707E2A18FD1B3900C37DE6 /* CoreVideo.framework in Frameworks */,
+				20707E2818FD1B3100C37DE6 /* ImageIO.framework in Frameworks */,
+				20707E2418FD139D00C37DE6 /* GLKit.framework in Frameworks */,
+				20707E2218FD139000C37DE6 /* AssetsLibrary.framework in Frameworks */,
 				20107F1518FBB32700641D41 /* CoreGraphics.framework in Frameworks */,
 				20107F1718FBB32700641D41 /* UIKit.framework in Frameworks */,
 				20107F1318FBB32700641D41 /* Foundation.framework in Frameworks */,
@@ -86,6 +134,9 @@
 		20107F0618FBB32700641D41 = {
 			isa = PBXGroup;
 			children = (
+				20707DFB18FD0C4F00C37DE6 /* C_video */,
+				20707E0018FD0C4F00C37DE6 /* PBJVision */,
+				20707E0D18FD0C4F00C37DE6 /* resource */,
 				20107F1818FBB32700641D41 /* DemoForPlayer */,
 				20107F3118FBB32700641D41 /* DemoForPlayerTests */,
 				20107F1118FBB32700641D41 /* Frameworks */,
@@ -105,6 +156,13 @@
 		20107F1118FBB32700641D41 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				20707E2F18FD1B5000C37DE6 /* AVFoundation.framework */,
+				20707E2D18FD1B4A00C37DE6 /* CoreMedia.framework */,
+				20707E2B18FD1B4200C37DE6 /* MobileCoreServices.framework */,
+				20707E2918FD1B3900C37DE6 /* CoreVideo.framework */,
+				20707E2718FD1B3100C37DE6 /* ImageIO.framework */,
+				20707E2318FD139D00C37DE6 /* GLKit.framework */,
+				20707E2118FD139000C37DE6 /* AssetsLibrary.framework */,
 				20107F1218FBB32700641D41 /* Foundation.framework */,
 				20107F1418FBB32700641D41 /* CoreGraphics.framework */,
 				20107F1618FBB32700641D41 /* UIKit.framework */,
@@ -116,9 +174,11 @@
 		20107F1818FBB32700641D41 /* DemoForPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				20107F4118FBB38100641D41 /* C_video */,
 				20107F2118FBB32700641D41 /* AppDelegate.h */,
 				20107F2218FBB32700641D41 /* AppDelegate.m */,
+				20707E1918FD0C7200C37DE6 /* VC_root.h */,
+				20707E1A18FD0C7200C37DE6 /* VC_root.m */,
+				20707E1B18FD0C7200C37DE6 /* VC_root.xib */,
 				20107F2418FBB32700641D41 /* Images.xcassets */,
 				20107F1918FBB32700641D41 /* Supporting Files */,
 			);
@@ -154,17 +214,51 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		20107F4118FBB38100641D41 /* C_video */ = {
+		20707DFB18FD0C4F00C37DE6 /* C_video */ = {
 			isa = PBXGroup;
 			children = (
-				20107F4218FBB38100641D41 /* C_video.h */,
-				20107F4318FBB38100641D41 /* C_video.m */,
-				20107F4418FBB38100641D41 /* V_player.h */,
-				20107F4518FBB38100641D41 /* V_player.m */,
-				20107F4818FBBB7D00641D41 /* O_main_thread_host.h */,
-				20107F4918FBBB7D00641D41 /* O_main_thread_host.m */,
+				20707DFC18FD0C4F00C37DE6 /* C_video.h */,
+				20707DFD18FD0C4F00C37DE6 /* C_video.m */,
+				20707DFE18FD0C4F00C37DE6 /* V_player.h */,
+				20707DFF18FD0C4F00C37DE6 /* V_player.m */,
 			);
 			path = C_video;
+			sourceTree = "<group>";
+		};
+		20707E0018FD0C4F00C37DE6 /* PBJVision */ = {
+			isa = PBXGroup;
+			children = (
+				20707E1E18FD0E4900C37DE6 /* PBJFocusView.h */,
+				20707E1F18FD0E4900C37DE6 /* PBJFocusView.m */,
+				20707E0118FD0C4F00C37DE6 /* PBJGLProgram.h */,
+				20707E0218FD0C4F00C37DE6 /* PBJGLProgram.m */,
+				20707E0318FD0C4F00C37DE6 /* PBJMediaWriter.h */,
+				20707E0418FD0C4F00C37DE6 /* PBJMediaWriter.m */,
+				20707E0518FD0C4F00C37DE6 /* PBJVision.h */,
+				20707E0618FD0C4F00C37DE6 /* PBJVision.m */,
+				20707E0718FD0C4F00C37DE6 /* PBJVisionUtilities.h */,
+				20707E0818FD0C4F00C37DE6 /* PBJVisionUtilities.m */,
+				20707E0918FD0C4F00C37DE6 /* README.md */,
+				20707E0A18FD0C4F00C37DE6 /* Shaders */,
+			);
+			path = PBJVision;
+			sourceTree = "<group>";
+		};
+		20707E0A18FD0C4F00C37DE6 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				20707E0B18FD0C4F00C37DE6 /* Shader.fsh */,
+				20707E0C18FD0C4F00C37DE6 /* Shader.vsh */,
+			);
+			path = Shaders;
+			sourceTree = "<group>";
+		};
+		20707E0D18FD0C4F00C37DE6 /* resource */ = {
+			isa = PBXGroup;
+			children = (
+				20707E0E18FD0C4F00C37DE6 /* logo.png */,
+			);
+			path = resource;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -242,6 +336,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				20707E2518FD190500C37DE6 /* Shader.fsh in Resources */,
+				20707E2618FD190500C37DE6 /* Shader.vsh in Resources */,
+				20707E1D18FD0C7200C37DE6 /* VC_root.xib in Resources */,
+				20707E1818FD0C4F00C37DE6 /* logo.png in Resources */,
+				20707E1518FD0C4F00C37DE6 /* README.md in Resources */,
 				20107F1D18FBB32700641D41 /* InfoPlist.strings in Resources */,
 				20107F2518FBB32700641D41 /* Images.xcassets in Resources */,
 			);
@@ -262,11 +361,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				20707E1618FD0C4F00C37DE6 /* Shader.fsh in Sources */,
+				20707E1218FD0C4F00C37DE6 /* PBJMediaWriter.m in Sources */,
+				20707E1118FD0C4F00C37DE6 /* PBJGLProgram.m in Sources */,
 				20107F2318FBB32700641D41 /* AppDelegate.m in Sources */,
+				20707E2018FD0E4900C37DE6 /* PBJFocusView.m in Sources */,
+				20707E1718FD0C4F00C37DE6 /* Shader.vsh in Sources */,
 				20107F1F18FBB32700641D41 /* main.m in Sources */,
-				20107F4A18FBBB7D00641D41 /* O_main_thread_host.m in Sources */,
-				20107F4618FBB38100641D41 /* C_video.m in Sources */,
-				20107F4718FBB38100641D41 /* V_player.m in Sources */,
+				20707E0F18FD0C4F00C37DE6 /* C_video.m in Sources */,
+				20707E1C18FD0C7200C37DE6 /* VC_root.m in Sources */,
+				20707E1018FD0C4F00C37DE6 /* V_player.m in Sources */,
+				20707E1318FD0C4F00C37DE6 /* PBJVision.m in Sources */,
+				20707E1418FD0C4F00C37DE6 /* PBJVisionUtilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

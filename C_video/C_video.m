@@ -7,13 +7,18 @@
 //
 
 #import "C_video.h"
-#import "O_main_thread_host.h"
 
 #if !__has_feature(objc_arc)
 #error 请在ARC下编译此类。
 #endif
 
 @implementation O_watermark
+
++ (id)watermark
+{
+    O_watermark *mark = [[O_watermark alloc] init];
+    return mark;
+}
 
 @end
 
@@ -32,26 +37,33 @@
     return length;
 }
 
++ (CMTimeRange)video_range:(NSURL *)videoUrl
+{
+    AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:videoUrl options:nil];
+    return CMTimeRangeMake(kCMTimeZero, asset.duration);
+}
+
 + (void)set_thumb_image:(NSURL*)url
                 in_view:(UIImageView *)imgV
                    size:(CGSize)maxSize
 {
-    __block AVURLAsset *asset=[[AVURLAsset alloc] initWithURL:url options:nil];
+    __block AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:url options:nil];
     __block AVAssetImageGenerator *generator = [[AVAssetImageGenerator alloc] initWithAsset:asset];
     generator.appliesPreferredTrackTransform = TRUE;
     
     CMTime thumbTime = CMTimeMakeWithSeconds(0, 30);
     
     AVAssetImageGeneratorCompletionHandler handler = ^(CMTime requestedTime, CGImageRef im, CMTime actualTime, AVAssetImageGeneratorResult result, NSError *err){
-        [O_main_thread_host do_on_main:^{
+        asset = nil, generator = nil;
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
             if (result != AVAssetImageGeneratorSucceeded) {
                 NSLog(@"setThumbImage failed with error %@", err);
             }
             else {
                 [imgV setImage:[UIImage imageWithCGImage:im]];
             }
-            asset = nil, generator = nil;
-        }];
+        });
     };
     
     generator.maximumSize = maxSize;
@@ -379,16 +391,18 @@
         if (![compositionTrack insertTimeRange:track.timeRange
                                        ofTrack:track
                                         atTime:kCMTimeZero
-                                         error:nil]) {
+                                         error:error]) {
             sourceAsset = nil;
             return NO;
         }
         compositionTrack.preferredTransform = track.preferredTransform;
+        NSLog(@"%@", track.mediaType);
         if ([track.mediaType isEqualToString:AVMediaTypeVideo]) {
             video_track = compositionTrack;
         }
     }
     
+    NSLog(@"naturalSize %@", NSStringFromCGSize(video_track.naturalSize));
     //water mark
     AVMutableVideoComposition *video_composition = [AVMutableVideoComposition videoComposition];
     video_composition.renderSize = video_track.naturalSize;
@@ -401,7 +415,9 @@
     [parentLayer addSublayer:videoLayer];
     [parentLayer addSublayer:mark.layer_watermark];
     
-    video_composition.animationTool = [AVVideoCompositionCoreAnimationTool videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer inLayer:parentLayer];
+    video_composition.animationTool = [AVVideoCompositionCoreAnimationTool
+                                       videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer
+                                       inLayer:parentLayer];
     
     AVMutableVideoCompositionInstruction *video_composition_instruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
     
@@ -421,14 +437,41 @@
     [exporter setShouldOptimizeForNetworkUse:YES];
     
     [exporter exportAsynchronouslyWithCompletionHandler:^(void) {
-        sourceAsset = nil;
         if (exporter.status == AVAssetExportSessionStatusCompleted) {
             success = YES;
         }
         else {
-            *error = [exporter error];
+            NSError *err = [exporter error];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                *error = [NSError errorWithDomain:err.domain code:err.code userInfo:err.userInfo];
+            });
             success = NO;
         }
+        
+        switch (exporter.status) {
+            case AVAssetExportSessionStatusUnknown:
+                NSLog(@"AVAssetExportSessionStatusUnknown");
+                break;
+            case AVAssetExportSessionStatusWaiting:
+                NSLog(@"AVAssetExportSessionStatusWaiting");
+                break;
+            case AVAssetExportSessionStatusExporting:
+                NSLog(@"AVAssetExportSessionStatusExporting");
+                break;
+            case AVAssetExportSessionStatusCompleted:
+                NSLog(@"AVAssetExportSessionStatusCompleted");
+                break;
+            case AVAssetExportSessionStatusFailed:
+                NSLog(@"AVAssetExportSessionStatusFailed");
+                break;
+            case AVAssetExportSessionStatusCancelled:
+                NSLog(@"AVAssetExportSessionStatusCancelled");
+                break;
+            default:
+                NSLog(@"AVAssetExportSessionStatusUnknown");
+                break;
+        }
+        
         isDone = YES;
     }];
     
@@ -436,9 +479,115 @@
         [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01f]];
     }
     
+    sourceAsset = nil;
     exporter = nil;
     
     return success;
+}
+
++ (void) loadVideoByPath:(NSString*) v_strVideoPath andSavePath:(NSString*) v_strSavePath {
+    
+    NSLog(@"\nv_strVideoPath = %@ \nv_strSavePath = %@\n ",v_strVideoPath,v_strSavePath);
+    AVAsset *avAsset = [AVAsset assetWithURL:[NSURL fileURLWithPath:v_strVideoPath]];
+    CMTime assetTime = [avAsset duration];
+    Float64 duration = CMTimeGetSeconds(assetTime);
+    NSLog(@"视频时长 %f\n",duration);
+    
+    AVMutableComposition *avMutableComposition = [AVMutableComposition composition];
+    
+    AVMutableCompositionTrack *avMutableCompositionTrack = [avMutableComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
+    
+    AVAssetTrack *avAssetTrack = [[avAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+    
+    NSError *error = nil;
+    // 这块是裁剪,rangtime .前面的是开始时间,后面是裁剪多长
+    [avMutableCompositionTrack insertTimeRange:CMTimeRangeMake(CMTimeMakeWithSeconds(0.1f, 30), CMTimeMakeWithSeconds(duration, 30))
+                                       ofTrack:avAssetTrack
+                                        atTime:kCMTimeZero
+                                         error:&error];
+    
+    AVMutableVideoComposition *avMutableVideoComposition = [AVMutableVideoComposition videoComposition];
+    
+    avMutableVideoComposition.renderSize = CGSizeMake(320.0f, 480.0f);
+    avMutableVideoComposition.frameDuration = CMTimeMake(1, 30);
+    
+    //     CALayer *animatedTitleLayer = [self buildAnimatedTitleLayerForSize:CGSizeMake(320, 88)];
+    
+    UIImage *waterMarkImage = [UIImage imageNamed:@"logo.png"];
+    CALayer *waterMarkLayer = [CALayer layer];
+    waterMarkLayer.frame = CGRectMake(0, 60, 320, 222);
+    waterMarkLayer.contents = (id)waterMarkImage.CGImage;
+    
+    
+    CALayer *parentLayer = [CALayer layer];
+    CALayer *videoLayer = [CALayer layer];
+    parentLayer.frame = CGRectMake(0, 0, 320, 480);
+    videoLayer.frame = CGRectMake(0, 0, 320, 480);
+    [parentLayer addSublayer:videoLayer];
+    [parentLayer addSublayer:waterMarkLayer];
+    
+    avMutableVideoComposition.animationTool = [AVVideoCompositionCoreAnimationTool videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer inLayer:parentLayer];
+    
+    AVMutableVideoCompositionInstruction *avMutableVideoCompositionInstruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
+    
+    [avMutableVideoCompositionInstruction setTimeRange:CMTimeRangeMake(kCMTimeZero, [avMutableComposition duration])];
+    
+    AVMutableVideoCompositionLayerInstruction *avMutableVideoCompositionLayerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:avAssetTrack];
+    [avMutableVideoCompositionLayerInstruction setTransform:avAssetTrack.preferredTransform atTime:kCMTimeZero];
+    
+    avMutableVideoCompositionInstruction.layerInstructions = [NSArray arrayWithObject:avMutableVideoCompositionLayerInstruction];
+    
+    
+    avMutableVideoComposition.instructions = [NSArray arrayWithObject:avMutableVideoCompositionInstruction];
+    
+    
+    NSFileManager *fm = [[NSFileManager alloc] init];
+    if ([fm fileExistsAtPath:v_strSavePath]) {
+        NSLog(@"video is have. then delete that");
+        if ([fm removeItemAtPath:v_strSavePath error:&error]) {
+            NSLog(@"delete is ok");
+        }else {
+            NSLog(@"delete is no error = %@",error.description);
+        }
+    }
+    
+    
+    AVAssetExportSession *avAssetExportSession = [[AVAssetExportSession alloc] initWithAsset:avMutableComposition presetName:AVAssetExportPreset640x480];
+    [avAssetExportSession setVideoComposition:avMutableVideoComposition];
+    [avAssetExportSession setOutputURL:[NSURL fileURLWithPath:v_strSavePath]];
+    avAssetExportSession.outputFileType = @"com.apple.quicktime-movie";
+    //     [avAssetExportSession setOutputFileType:AVFileTypeQuickTimeMovie];//这句话要是要的话，会出错的。。。
+    [avAssetExportSession setShouldOptimizeForNetworkUse:YES];
+    [avAssetExportSession exportAsynchronouslyWithCompletionHandler:^(void){
+        switch (avAssetExportSession.status) {
+            case AVAssetExportSessionStatusFailed:
+                NSLog(@"exporting failed %@",[avAssetExportSession error]);
+                break;
+            case AVAssetExportSessionStatusCompleted:
+                NSLog(@"exporting completed");
+                //下面是按照上面的要求合成视频的过程。
+                // 下面是把视频存到本地相册里面，存储完后弹出对话框。
+                //                NSLog(@"该视频的大小为：%lf M",[self fileSizeAtPath:v_strSavePath]);
+                //                [_assetLibrary writeVideoAtPathToSavedPhotosAlbum:avAssetExportSession.outputURL completionBlock:^(NSURL *assetURL, NSError *error1) {
+                //                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"好的!" message: @"整合并保存成功！"
+                //                                                                   delegate:nil
+                //                                                          cancelButtonTitle:@"OK"
+                //                                                          otherButtonTitles:nil];
+                //                    [alert show];
+                //
+                //                }];
+                break;
+            case AVAssetExportSessionStatusCancelled:
+                
+                
+                NSLog(@"export cancelled");
+                
+                break;
+        }
+    }];
+    if (avAssetExportSession.status != AVAssetExportSessionStatusCompleted){
+        NSLog(@"Retry export");
+    }
 }
 
 @end
