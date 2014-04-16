@@ -19,8 +19,8 @@
 #define Key_VideoName                   @"Key_VideoName"
 #define Key_VideoURL                    @"Key_VideoURL"
 
-@interface O_watermark : NSObject
-@property (nonatomic, assign) CMTimeRange range;
+@interface O_item : NSObject
+@property (nonatomic, assign) CMTimeRange time_range;
 @property (nonatomic, strong) CALayer     *layer_watermark;
 
 + (id)watermark;
@@ -43,8 +43,9 @@
 
 + (BOOL)cut_video_src:(NSURL*)src
                   des:(NSURL*)des
-                 from:(int64_t)start
-                   to:(int64_t)end
+                range:(CMTimeRange)range
+           presetName:(NSString *)preset_name
+       outputFileType:(NSString *)file_type
                 error:(NSError **)error;
 
 + (NSMutableArray *)get_photo_groups;
@@ -57,9 +58,9 @@
 
 + (BOOL)watermark_video_src:(NSURL *)src
                         des:(NSURL *)des
-                       mark:(O_watermark *)mark
+                  markLayer:(CALayer *)mark_layer
+                 presetName:(NSString *)preset_name
+             outputFileType:(NSString *)file_type
                       error:(NSError **)error;
-
-+ (void) loadVideoByPath:(NSString*) v_strVideoPath andSavePath:(NSString*) v_strSavePath;
 
 @end

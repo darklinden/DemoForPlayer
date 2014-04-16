@@ -26,8 +26,6 @@
 		20707E1318FD0C4F00C37DE6 /* PBJVision.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707E0618FD0C4F00C37DE6 /* PBJVision.m */; };
 		20707E1418FD0C4F00C37DE6 /* PBJVisionUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707E0818FD0C4F00C37DE6 /* PBJVisionUtilities.m */; };
 		20707E1518FD0C4F00C37DE6 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 20707E0918FD0C4F00C37DE6 /* README.md */; };
-		20707E1618FD0C4F00C37DE6 /* Shader.fsh in Sources */ = {isa = PBXBuildFile; fileRef = 20707E0B18FD0C4F00C37DE6 /* Shader.fsh */; };
-		20707E1718FD0C4F00C37DE6 /* Shader.vsh in Sources */ = {isa = PBXBuildFile; fileRef = 20707E0C18FD0C4F00C37DE6 /* Shader.vsh */; };
 		20707E1818FD0C4F00C37DE6 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 20707E0E18FD0C4F00C37DE6 /* logo.png */; };
 		20707E1C18FD0C7200C37DE6 /* VC_root.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707E1A18FD0C7200C37DE6 /* VC_root.m */; };
 		20707E1D18FD0C7200C37DE6 /* VC_root.xib in Resources */ = {isa = PBXBuildFile; fileRef = 20707E1B18FD0C7200C37DE6 /* VC_root.xib */; };
@@ -370,13 +368,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				20707E1618FD0C4F00C37DE6 /* Shader.fsh in Sources */,
 				20707E1218FD0C4F00C37DE6 /* PBJMediaWriter.m in Sources */,
 				20707E4118FD2E9E00C37DE6 /* VC_player.m in Sources */,
 				20707E1118FD0C4F00C37DE6 /* PBJGLProgram.m in Sources */,
 				20107F2318FBB32700641D41 /* AppDelegate.m in Sources */,
 				20707E2018FD0E4900C37DE6 /* PBJFocusView.m in Sources */,
-				20707E1718FD0C4F00C37DE6 /* Shader.vsh in Sources */,
 				20107F1F18FBB32700641D41 /* main.m in Sources */,
 				20707E0F18FD0C4F00C37DE6 /* C_video.m in Sources */,
 				20707E1C18FD0C7200C37DE6 /* VC_root.m in Sources */,
@@ -501,11 +497,13 @@
 		20107F3C18FBB32700641D41 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DemoForPlayer/DemoForPlayer-Prefix.pch";
 				INFOPLIST_FILE = "DemoForPlayer/DemoForPlayer-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -514,11 +512,13 @@
 		20107F3D18FBB32700641D41 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DemoForPlayer/DemoForPlayer-Prefix.pch";
 				INFOPLIST_FILE = "DemoForPlayer/DemoForPlayer-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

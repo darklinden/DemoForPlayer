@@ -221,34 +221,37 @@
     NSString *src = [videoDict objectForKey:PBJVisionVideoPathKey];
     NSString *des = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"des.mov"];
     
-//    [C_video loadVideoByPath:videoPath andSavePath:des];
     CMTimeRange range = [C_video video_range:[NSURL fileURLWithPath:src]];
     
-    O_watermark *mark = [O_watermark watermark];
-    mark.range = range;
+    O_item *mark = [O_item watermark];
+    mark.time_range = range;
     
-    //    CATextLayer *t_layer = [[CATextLayer alloc] init];
-    //    t_layer.string = @"Hello World";
-    //    t_layer.font = (__bridge CFTypeRef)(@"Helvetica");
-    //    t_layer.fontSize = 20.0f;
-    //    t_layer.shadowOpacity = 0.6f ;
-    //    t_layer.backgroundColor = [UIColor clearColor].CGColor;
-    //    t_layer.foregroundColor = [UIColor redColor].CGColor;
+    //draw text
+    CATextLayer *t_layer = [[CATextLayer alloc] init];
+    t_layer.string = @"Hello World";
+    t_layer.font = (__bridge CFTypeRef)(@"Helvetica");
+    t_layer.fontSize = 20.0f;
+    t_layer.shadowOpacity = 0.6f ;
+    t_layer.backgroundColor = [UIColor clearColor].CGColor;
+    t_layer.foregroundColor = [UIColor redColor].CGColor;
+    t_layer.frame = CGRectMake(0.f, 0.f, 100.f, 100.f);
+    mark.layer_watermark = t_layer;
     
-    UIImage *img = [UIImage imageNamed:@"logo.png"];
-    CALayer *img_layer = [CALayer layer];
-    img_layer.frame = CGRectMake(0, 60, 320, 222);
-    img_layer.contents = (id)img.CGImage;
-    
-    mark.layer_watermark = img_layer;
+    //draw image
+//    UIImage *img = [UIImage imageNamed:@"logo.png"];
+//    CALayer *img_layer = [CALayer layer];
+//    img_layer.frame = CGRectMake(0, 60, 320, 222);
+//    img_layer.contents = (id)img.CGImage;
+//    mark.layer_watermark = img_layer;
     
     NSError *err = nil;
-//    [C_video watermark_video_src:[NSURL fileURLWithPath:src]
-//                             des:[NSURL fileURLWithPath:des]
-//                            mark:mark
-//                           error:&err];
+    [C_video watermark_video_src:[NSURL fileURLWithPath:src]
+                             des:[NSURL fileURLWithPath:des]
+                            markLayer:t_layer
+                      presetName:AVAssetExportPreset640x480
+                  outputFileType:AVFileTypeQuickTimeMovie
+                           error:&err];
     NSLog(@"%@", err);
-    [C_video loadVideoByPath:src andSavePath:des];
 }
 
 @end

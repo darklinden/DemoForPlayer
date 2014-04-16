@@ -12,11 +12,11 @@
 #error 请在ARC下编译此类。
 #endif
 
-@implementation O_watermark
+@implementation O_item
 
 + (id)watermark
 {
-    O_watermark *mark = [[O_watermark alloc] init];
+    O_item *mark = [[O_item alloc] init];
     return mark;
 }
 
@@ -122,25 +122,12 @@
 
 + (BOOL)cut_video_src:(NSURL*)src
                   des:(NSURL*)des
-                 from:(int64_t)start
-                   to:(int64_t)end
+                range:(CMTimeRange)range
+           presetName:(NSString *)preset_name
+       outputFileType:(NSString *)file_type
                 error:(NSError **)error
 {
     __block BOOL isDone = NO;
-    
-    CMTime xstart;
-    xstart.value = start;
-    xstart.timescale = 1;
-    xstart.flags = 1;
-    xstart.epoch = 0;
-    
-    CMTime xduration;
-    xduration.value = end - start;
-    xduration.timescale = 1;
-    xduration.flags = 1;
-    xduration.epoch = 0;
-    
-    CMTimeRange duration = CMTimeRangeMake(xstart, xduration);
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:[des path]])
     {
@@ -155,7 +142,7 @@
     
     for (AVAssetTrack *track in [sourceAsset tracks]) {
         AVMutableCompositionTrack *compositionTrack = [composition addMutableTrackWithMediaType:track.mediaType preferredTrackID:kCMPersistentTrackID_Invalid];
-        if (![compositionTrack insertTimeRange:duration
+        if (![compositionTrack insertTimeRange:range
                                        ofTrack:track
                                         atTime:kCMTimeZero
                                          error:nil]) {
@@ -165,17 +152,100 @@
         compositionTrack.preferredTransform = track.preferredTransform;
     }
     
-    AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:composition presetName:AVAssetExportPresetHighestQuality];
+    AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:composition presetName:preset_name];
 	
     exporter.outputURL = des;
 	
-    //NSLog(@"%@", [exporter supportedFileTypes]);
-	//@"com.apple.quicktime-movie";
-    
-    exporter.outputFileType = @"com.apple.quicktime-movie";
+    exporter.outputFileType = file_type;
 	
     [exporter exportAsynchronouslyWithCompletionHandler:^(void) {
         sourceAsset = nil;
+        isDone = YES;
+    }];
+    
+    while (!isDone) {
+        [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01f]];
+    }
+    
+    exporter = nil;
+    
+    return YES;
+}
+
++ (BOOL)split_video_src:(NSURL *)src
+              to_folder:(NSString *)folder_path
+                 ranges:(NSArray *)ranges
+             presetName:(NSString *)preset_name
+         outputFileType:(NSString *)file_type
+                  error:(NSError **)error
+{
+    BOOL sucess = YES;
+    for (int i = 0; i < ranges.count; i++) {
+        O_item *item_range = ranges[i];
+        NSString *des = [folder_path stringByAppendingPathComponent:[NSString stringWithFormat:@"%d.part", i]];
+        sucess = [self cut_video_src:src
+                                 des:[NSURL fileURLWithPath:des]
+                               range:item_range.time_range
+                          presetName:preset_name
+                      outputFileType:file_type
+                               error:error];
+        if (!sucess) {
+            break;
+        }
+    }
+    
+    return sucess;
+}
+
++ (BOOL)stitch_videos:(NSArray *)videos
+                  des:(NSURL*)des
+           presetName:(NSString *)preset_name
+       outputFileType:(NSString *)file_type
+                error:(NSError **)error
+{
+    __block BOOL isDone = NO;
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[des path]])
+    {
+        if (![[NSFileManager defaultManager] removeItemAtPath:[des path] error:error]) {
+            return NO;
+        }
+    }
+    
+	AVMutableComposition *composition = [AVMutableComposition composition];
+    
+    CMTime position = kCMTimeZero;
+    for (int i = 0; i < videos.count; i++) {
+        NSURL *src = videos[i];
+        AVURLAsset * sourceAsset = [[AVURLAsset alloc] initWithURL:src options:nil];
+        CMTimeRange range = CMTimeRangeMake(kCMTimeZero, sourceAsset.duration);
+        
+        for (AVAssetTrack *track in [sourceAsset tracks]) {
+            AVMutableCompositionTrack *compositionTrack =
+            [composition
+             addMutableTrackWithMediaType:track.mediaType
+             preferredTrackID:kCMPersistentTrackID_Invalid];
+            
+            if (![compositionTrack insertTimeRange:range
+                                           ofTrack:track
+                                            atTime:position
+                                             error:nil]) {
+                sourceAsset = nil;
+                return NO;
+            }
+            compositionTrack.preferredTransform = track.preferredTransform;
+        }
+        
+        position = CMTimeAdd(position, range.duration);
+    }
+    
+    AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:composition presetName:preset_name];
+	
+    exporter.outputURL = des;
+	
+    exporter.outputFileType = file_type;
+	
+    [exporter exportAsynchronouslyWithCompletionHandler:^(void) {
         isDone = YES;
     }];
     
@@ -369,85 +439,108 @@
 
 + (BOOL)watermark_video_src:(NSURL *)src
                         des:(NSURL *)des
-                       mark:(O_watermark *)mark
+                      marks:(NSArray *)marks
+                 presetName:(NSString *)preset_name
+             outputFileType:(NSString *)file_type
                       error:(NSError **)error
 {
-    if ([[NSFileManager defaultManager] fileExistsAtPath:[des path]])
-    {
+    
+    return NO;
+}
+
++ (BOOL)watermark_video_src:(NSURL *)src
+                        des:(NSURL *)des
+                  markLayer:(CALayer *)mark_layer
+                 presetName:(NSString *)preset_name
+             outputFileType:(NSString *)file_type
+                      error:(NSError **)error
+{
+    NSLog(@"src : %@ \n des: %@", src, des);
+    AVAsset *asset_src = [AVAsset assetWithURL:src];
+    
+    NSLog(@"视频时长 %llu", [self video_length:src]);
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[des path]]) {
         if (![[NSFileManager defaultManager] removeItemAtPath:[des path] error:error]) {
             return NO;
         }
     }
     
-    __block BOOL isDone = NO;
-    __block BOOL success = YES;
-    
     AVMutableComposition *composition = [AVMutableComposition composition];
-    __block AVURLAsset * sourceAsset = [[AVURLAsset alloc] initWithURL:src options:nil];
     
-    AVMutableCompositionTrack *video_track = nil;
-    for (AVAssetTrack *track in [sourceAsset tracks]) {
-        AVMutableCompositionTrack *compositionTrack = [composition addMutableTrackWithMediaType:track.mediaType preferredTrackID:kCMPersistentTrackID_Invalid];
-        if (![compositionTrack insertTimeRange:track.timeRange
-                                       ofTrack:track
-                                        atTime:kCMTimeZero
-                                         error:error]) {
-            sourceAsset = nil;
+    AVAssetTrack *track_video_src = nil;
+    AVMutableCompositionTrack *track_video_des = nil;
+    
+    for (AVAssetTrack *track_src in asset_src.tracks) {
+        AVMutableCompositionTrack *track_des =
+        [composition addMutableTrackWithMediaType:track_src.mediaType
+                                 preferredTrackID:kCMPersistentTrackID_Invalid];
+        BOOL success =
+        [track_des insertTimeRange:track_src.timeRange
+                           ofTrack:track_src
+                            atTime:kCMTimeZero
+                             error:error];
+        if (!success) {
             return NO;
         }
-        compositionTrack.preferredTransform = track.preferredTransform;
-        NSLog(@"%@", track.mediaType);
-        if ([track.mediaType isEqualToString:AVMediaTypeVideo]) {
-            video_track = compositionTrack;
+        if ([track_src.mediaType isEqualToString:AVMediaTypeVideo]) {
+            track_video_src = track_src;
+            track_video_des = track_des;
         }
     }
     
-    NSLog(@"naturalSize %@", NSStringFromCGSize(video_track.naturalSize));
-    //water mark
-    AVMutableVideoComposition *video_composition = [AVMutableVideoComposition videoComposition];
-    video_composition.renderSize = video_track.naturalSize;
-    video_composition.frameDuration = mark.range.duration;
+    if (!track_video_src
+        || !track_video_des) {
+        *error = [NSError errorWithDomain:@"No video track found in video." code:-1 userInfo:nil];
+        return NO;
+    }
+    
+    AVMutableVideoComposition *mark_composition =
+    [AVMutableVideoComposition videoComposition];
+    
+    mark_composition.renderSize = track_video_src.naturalSize;
+    mark_composition.frameDuration = track_video_src.timeRange.duration;
     
     CALayer *parentLayer = [CALayer layer];
     CALayer *videoLayer = [CALayer layer];
-    parentLayer.frame = CGRectMake(0.f, 0.f, video_track.naturalSize.width, video_track.naturalSize.width);
-    videoLayer.frame = CGRectMake(0.f, 0.f, video_track.naturalSize.width, video_track.naturalSize.width);
+    parentLayer.frame = CGRectMake(0.f, 0.f, track_video_src.naturalSize.width, track_video_src.naturalSize.height);
+    videoLayer.frame = CGRectMake(0.f, 0.f, track_video_src.naturalSize.width, track_video_src.naturalSize.height);
     [parentLayer addSublayer:videoLayer];
-    [parentLayer addSublayer:mark.layer_watermark];
+    [parentLayer addSublayer:mark_layer];
     
-    video_composition.animationTool = [AVVideoCompositionCoreAnimationTool
-                                       videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer
-                                       inLayer:parentLayer];
+    mark_composition.animationTool =
+    [AVVideoCompositionCoreAnimationTool
+     videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer
+     inLayer:parentLayer];
     
-    AVMutableVideoCompositionInstruction *video_composition_instruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
+    AVMutableVideoCompositionInstruction *mark_composition_instruction =
+    [AVMutableVideoCompositionInstruction videoCompositionInstruction];
     
-    [video_composition_instruction setTimeRange:mark.range];
+    [mark_composition_instruction setTimeRange:CMTimeRangeMake(kCMTimeZero, [composition duration])];
     
-    AVMutableVideoCompositionLayerInstruction *layer_instruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:video_track];
-    [layer_instruction setTransform:video_track.preferredTransform atTime:mark.range.start];
+    AVMutableVideoCompositionLayerInstruction *mark_layer_instruction =
+    [AVMutableVideoCompositionLayerInstruction
+     videoCompositionLayerInstructionWithAssetTrack:track_video_src];
     
-    video_composition_instruction.layerInstructions = @[layer_instruction];
+    [mark_layer_instruction setTransform:track_video_src.preferredTransform
+                                                     atTime:kCMTimeZero];
     
-    video_composition.instructions = @[video_composition_instruction];
-    AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:composition presetName:AVAssetExportPreset640x480];
-    [exporter setVideoComposition:video_composition];
+    mark_composition_instruction.layerInstructions = @[mark_layer_instruction];
+    
+    mark_composition.instructions = @[mark_composition_instruction];
+    
+    AVAssetExportSession *exporter =
+    [[AVAssetExportSession alloc] initWithAsset:composition
+                                     presetName:preset_name];
+    [exporter setVideoComposition:mark_composition];
     [exporter setOutputURL:des];
-    exporter.outputFileType = @"com.apple.quicktime-movie";
-    //     [avAssetExportSession setOutputFileType:AVFileTypeQuickTimeMovie];//这句话要是要的话，会出错的。。。
+    exporter.outputFileType = file_type;//@"com.apple.quicktime-movie";
     [exporter setShouldOptimizeForNetworkUse:YES];
     
-    [exporter exportAsynchronouslyWithCompletionHandler:^(void) {
-        if (exporter.status == AVAssetExportSessionStatusCompleted) {
-            success = YES;
-        }
-        else {
-            NSError *err = [exporter error];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                *error = [NSError errorWithDomain:err.domain code:err.code userInfo:err.userInfo];
-            });
-            success = NO;
-        }
-        
+    __block BOOL isDone = NO;
+    __block BOOL success = NO;
+    
+    [exporter exportAsynchronouslyWithCompletionHandler:^(void){
         switch (exporter.status) {
             case AVAssetExportSessionStatusUnknown:
                 NSLog(@"AVAssetExportSessionStatusUnknown");
@@ -460,6 +553,7 @@
                 break;
             case AVAssetExportSessionStatusCompleted:
                 NSLog(@"AVAssetExportSessionStatusCompleted");
+                success = YES;
                 break;
             case AVAssetExportSessionStatusFailed:
                 NSLog(@"AVAssetExportSessionStatusFailed");
@@ -472,122 +566,22 @@
                 break;
         }
         
+        NSError *err = [exporter error];
+        if (err) {
+            *error = err;
+        }
+        
         isDone = YES;
     }];
     
     while (!isDone) {
         [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01f]];
     }
-    
-    sourceAsset = nil;
-    exporter = nil;
-    
-    return success;
-}
 
-+ (void) loadVideoByPath:(NSString*) v_strVideoPath andSavePath:(NSString*) v_strSavePath {
-    
-    NSLog(@"\nv_strVideoPath = %@ \nv_strSavePath = %@\n ",v_strVideoPath,v_strSavePath);
-    AVAsset *avAsset = [AVAsset assetWithURL:[NSURL fileURLWithPath:v_strVideoPath]];
-    CMTime assetTime = [avAsset duration];
-    Float64 duration = CMTimeGetSeconds(assetTime);
-    NSLog(@"视频时长 %f\n",duration);
-    
-    AVMutableComposition *avMutableComposition = [AVMutableComposition composition];
-    
-    AVMutableCompositionTrack *avMutableCompositionTrack = [avMutableComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
-    
-    AVAssetTrack *avAssetTrack = [[avAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-    
-    NSError *error = nil;
-    // 这块是裁剪,rangtime .前面的是开始时间,后面是裁剪多长
-    [avMutableCompositionTrack insertTimeRange:CMTimeRangeMake(CMTimeMakeWithSeconds(0.1f, 30), CMTimeMakeWithSeconds(duration, 30))
-                                       ofTrack:avAssetTrack
-                                        atTime:kCMTimeZero
-                                         error:&error];
-    
-    AVMutableVideoComposition *avMutableVideoComposition = [AVMutableVideoComposition videoComposition];
-    
-    avMutableVideoComposition.renderSize = CGSizeMake(320.0f, 480.0f);
-    avMutableVideoComposition.frameDuration = CMTimeMake(1, 30);
-    
-    //     CALayer *animatedTitleLayer = [self buildAnimatedTitleLayerForSize:CGSizeMake(320, 88)];
-    
-    UIImage *waterMarkImage = [UIImage imageNamed:@"logo.png"];
-    CALayer *waterMarkLayer = [CALayer layer];
-    waterMarkLayer.frame = CGRectMake(0, 60, 320, 222);
-    waterMarkLayer.contents = (id)waterMarkImage.CGImage;
-    
-    
-    CALayer *parentLayer = [CALayer layer];
-    CALayer *videoLayer = [CALayer layer];
-    parentLayer.frame = CGRectMake(0, 0, 320, 480);
-    videoLayer.frame = CGRectMake(0, 0, 320, 480);
-    [parentLayer addSublayer:videoLayer];
-    [parentLayer addSublayer:waterMarkLayer];
-    
-    avMutableVideoComposition.animationTool = [AVVideoCompositionCoreAnimationTool videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer inLayer:parentLayer];
-    
-    AVMutableVideoCompositionInstruction *avMutableVideoCompositionInstruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
-    
-    [avMutableVideoCompositionInstruction setTimeRange:CMTimeRangeMake(kCMTimeZero, [avMutableComposition duration])];
-    
-    AVMutableVideoCompositionLayerInstruction *avMutableVideoCompositionLayerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:avAssetTrack];
-    [avMutableVideoCompositionLayerInstruction setTransform:avAssetTrack.preferredTransform atTime:kCMTimeZero];
-    
-    avMutableVideoCompositionInstruction.layerInstructions = [NSArray arrayWithObject:avMutableVideoCompositionLayerInstruction];
-    
-    
-    avMutableVideoComposition.instructions = [NSArray arrayWithObject:avMutableVideoCompositionInstruction];
-    
-    
-    NSFileManager *fm = [[NSFileManager alloc] init];
-    if ([fm fileExistsAtPath:v_strSavePath]) {
-        NSLog(@"video is have. then delete that");
-        if ([fm removeItemAtPath:v_strSavePath error:&error]) {
-            NSLog(@"delete is ok");
-        }else {
-            NSLog(@"delete is no error = %@",error.description);
-        }
-    }
-    
-    
-    AVAssetExportSession *avAssetExportSession = [[AVAssetExportSession alloc] initWithAsset:avMutableComposition presetName:AVAssetExportPreset640x480];
-    [avAssetExportSession setVideoComposition:avMutableVideoComposition];
-    [avAssetExportSession setOutputURL:[NSURL fileURLWithPath:v_strSavePath]];
-    avAssetExportSession.outputFileType = @"com.apple.quicktime-movie";
-    //     [avAssetExportSession setOutputFileType:AVFileTypeQuickTimeMovie];//这句话要是要的话，会出错的。。。
-    [avAssetExportSession setShouldOptimizeForNetworkUse:YES];
-    [avAssetExportSession exportAsynchronouslyWithCompletionHandler:^(void){
-        switch (avAssetExportSession.status) {
-            case AVAssetExportSessionStatusFailed:
-                NSLog(@"exporting failed %@",[avAssetExportSession error]);
-                break;
-            case AVAssetExportSessionStatusCompleted:
-                NSLog(@"exporting completed");
-                //下面是按照上面的要求合成视频的过程。
-                // 下面是把视频存到本地相册里面，存储完后弹出对话框。
-                //                NSLog(@"该视频的大小为：%lf M",[self fileSizeAtPath:v_strSavePath]);
-                //                [_assetLibrary writeVideoAtPathToSavedPhotosAlbum:avAssetExportSession.outputURL completionBlock:^(NSURL *assetURL, NSError *error1) {
-                //                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"好的!" message: @"整合并保存成功！"
-                //                                                                   delegate:nil
-                //                                                          cancelButtonTitle:@"OK"
-                //                                                          otherButtonTitles:nil];
-                //                    [alert show];
-                //
-                //                }];
-                break;
-            case AVAssetExportSessionStatusCancelled:
-                
-                
-                NSLog(@"export cancelled");
-                
-                break;
-        }
-    }];
-    if (avAssetExportSession.status != AVAssetExportSessionStatusCompleted){
-        NSLog(@"Retry export");
-    }
+    asset_src = nil;
+    exporter = nil;
+
+    return success;
 }
 
 @end
