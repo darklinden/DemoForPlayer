@@ -199,6 +199,7 @@
 - (void)visionDidPauseVideoCapture:(PBJVision *)vision
 {
     NSLog(@"%s", __FUNCTION__);
+    NSLog(@"senconds %lf", vision.capturedVideoSeconds);
 }
 
 - (void)visionDidResumeVideoCapture:(PBJVision *)vision
@@ -221,37 +222,122 @@
     NSString *src = [videoDict objectForKey:PBJVisionVideoPathKey];
     NSString *des = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"des.mov"];
     
+//    /*
+     //拆分视频并逐个创建字幕
     CMTimeRange range = [C_video video_range:[NSURL fileURLWithPath:src]];
+    NSMutableArray *array = [NSMutableArray array];
+    
+    CMTime position = kCMTimeZero;
+    CMTime duration = CMTimeMakeWithSeconds(2, 30);
+    
+    for (int i = 0; i < 2; i++) {
+        O_item *mark = [O_item watermark];
+        mark.time_range = CMTimeRangeMake(position, duration);
+        [array addObject:mark];
+        
+        CATextLayer *t_layer = [[CATextLayer alloc] init];
+        t_layer.string = [NSString stringWithFormat:@"%d", i];
+        t_layer.font = (__bridge CFTypeRef)(@"Helvetica");
+        t_layer.fontSize = 50.0f;
+        t_layer.shadowOpacity = 0.6f ;
+        t_layer.backgroundColor = [UIColor clearColor].CGColor;
+        t_layer.foregroundColor = [UIColor redColor].CGColor;
+        t_layer.frame = CGRectMake(0.f, 0.f, 100.f, 100.f);
+        mark.layer_watermark = t_layer;
+        
+        position = CMTimeAdd(position, duration);
+    }
     
     O_item *mark = [O_item watermark];
-    mark.time_range = range;
+    mark.time_range = CMTimeRangeMake(position, CMTimeSubtract(range.duration, position));
+    [array addObject:mark];
     
-    //draw text
-    CATextLayer *t_layer = [[CATextLayer alloc] init];
-    t_layer.string = @"Hello World";
-    t_layer.font = (__bridge CFTypeRef)(@"Helvetica");
-    t_layer.fontSize = 20.0f;
-    t_layer.shadowOpacity = 0.6f ;
-    t_layer.backgroundColor = [UIColor clearColor].CGColor;
-    t_layer.foregroundColor = [UIColor redColor].CGColor;
-    t_layer.frame = CGRectMake(0.f, 0.f, 100.f, 100.f);
-    mark.layer_watermark = t_layer;
-    
-    //draw image
-//    UIImage *img = [UIImage imageNamed:@"logo.png"];
-//    CALayer *img_layer = [CALayer layer];
-//    img_layer.frame = CGRectMake(0, 60, 320, 222);
-//    img_layer.contents = (id)img.CGImage;
-//    mark.layer_watermark = img_layer;
-    
-    NSError *err = nil;
+     NSError *err = nil;
     [C_video watermark_video_src:[NSURL fileURLWithPath:src]
                              des:[NSURL fileURLWithPath:des]
-                            markLayer:t_layer
+                           marks:array
                       presetName:AVAssetExportPreset640x480
                   outputFileType:AVFileTypeQuickTimeMovie
                            error:&err];
+    
     NSLog(@"%@", err);
+//    */
+    
+    //创建动态字幕
+//    CALayer *content_layer = [[CALayer alloc] init];
+//    
+//    CATextLayer *t_layer = [[CATextLayer alloc] init];
+//    t_layer.string = [NSString stringWithFormat:@"%d", 0];
+//    t_layer.font = (__bridge CFTypeRef)(@"Helvetica");
+//    t_layer.fontSize = 20.0f;
+//    t_layer.shadowOpacity = 0.6f ;
+//    t_layer.backgroundColor = [UIColor clearColor].CGColor;
+//    t_layer.foregroundColor = [UIColor redColor].CGColor;
+//    t_layer.frame = CGRectMake(0.f, 0.f, 100.f, 100.f);
+//    [content_layer addSublayer:t_layer];
+//    
+//    
+//    CATextLayer *last_layer = t_layer;
+//    NSMutableArray *textanimarray = [NSMutableArray array];
+//    CGFloat totalDuration = 0.f;
+//    
+//    for (int i = 0; i < 2; i++) {
+//        CABasicAnimation *textanim = [CABasicAnimation animationWithKeyPath:@"sublayers"];
+//        textanim.duration = 1.f;
+//        textanim.fromValue = @[last_layer];
+//        
+//        CATextLayer *next_layer = [[CATextLayer alloc] init];
+//        next_layer.string = [NSString stringWithFormat:@"%d", i];
+//        next_layer.font = (__bridge CFTypeRef)(@"Helvetica");
+//        next_layer.fontSize = 20.0f;
+//        next_layer.shadowOpacity = 0.6f ;
+//        next_layer.backgroundColor = [UIColor clearColor].CGColor;
+//        next_layer.foregroundColor = [UIColor redColor].CGColor;
+//        next_layer.frame = CGRectMake(0.f, 0.f, 100.f, 100.f);
+//        
+//        textanim.toValue = @[next_layer];
+//        
+//        last_layer = next_layer;
+//        
+//        textanim.beginTime = i + 1;
+//        textanim.removedOnCompletion = NO;
+//        textanim.fillMode = kCAFillModeBoth;
+//        textanim.cumulative = YES;
+//        [textanimarray addObject:textanim];
+//        
+//        totalDuration += 1.f;
+//    }
+//    
+//    CAAnimationGroup* textgroup = [CAAnimationGroup animation];
+//    [textgroup setDuration:totalDuration];
+//    [textgroup setAnimations:textanimarray];
+//    [content_layer addAnimation:textgroup forKey:nil];// @"contentAnimate"];
+//    [self.view.layer addSublayer:content_layer];
+    //draw image
+    
+//    UIImage *image1 = [UIImage imageNamed:@"logo.png"];
+//    UIImage *image2 = [UIImage imageNamed:@"1.gif"];
+//    
+//    CALayer *img_layer = [CALayer layer];
+//    img_layer.frame = CGRectMake(0, 0, 100, 100);
+//    img_layer.contents = (id)image1.CGImage;
+//    
+//    CABasicAnimation *crossFade = [CABasicAnimation animationWithKeyPath:@"contents"];
+//    crossFade.duration = 5.0;
+//    crossFade.fromValue = (__bridge id)(image1.CGImage);
+//    crossFade.toValue = (__bridge id)(image2.CGImage);
+//    [img_layer addAnimation:crossFade forKey:@"animateContents"];
+//    
+////    [self.view.layer addSublayer:img_layer];
+//    
+//    NSError *err = nil;
+//    [C_video watermark_video_src:[NSURL fileURLWithPath:src]
+//                             des:[NSURL fileURLWithPath:des]
+//                       markLayer:img_layer
+//                      presetName:AVAssetExportPreset640x480
+//                  outputFileType:AVFileTypeQuickTimeMovie
+//                           error:&err];
+//    NSLog(@"%@", err);
 }
 
 @end

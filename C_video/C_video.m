@@ -20,6 +20,11 @@
     return mark;
 }
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"<%@ range_start:%lf range_duration:%lf layer:%@>", [self class], CMTimeGetSeconds(self.time_range.start), CMTimeGetSeconds(self.time_range.duration), self.layer_watermark];
+}
+
 @end
 
 @interface C_video ()
@@ -93,7 +98,7 @@
             if (![compositionTrack insertTimeRange:track.timeRange
                                            ofTrack:track
                                             atTime:kCMTimeZero
-                                             error:nil]) {
+                                             error:error]) {
                 sourceAsset = nil;
                 return NO;
             }
@@ -145,7 +150,7 @@
         if (![compositionTrack insertTimeRange:range
                                        ofTrack:track
                                         atTime:kCMTimeZero
-                                         error:nil]) {
+                                         error:error]) {
             sourceAsset = nil;
             return NO;
         }
@@ -172,29 +177,45 @@
     return YES;
 }
 
-+ (BOOL)split_video_src:(NSURL *)src
-              to_folder:(NSString *)folder_path
-                 ranges:(NSArray *)ranges
-             presetName:(NSString *)preset_name
-         outputFileType:(NSString *)file_type
-                  error:(NSError **)error
++ (NSArray *)split_video_src:(NSURL *)src
+                   to_folder:(NSString *)folder_path
+                      ranges:(NSArray *)ranges
+                  presetName:(NSString *)preset_name
+              outputFileType:(NSString *)file_type
+               pathExtension:(NSString *)pathExtension
+                       error:(NSError **)error
 {
     BOOL sucess = YES;
+    
+    [[NSFileManager defaultManager] removeItemAtPath:folder_path error:nil];
+    if (![[NSFileManager defaultManager] createDirectoryAtPath:folder_path
+                                   withIntermediateDirectories:YES
+                                                    attributes:nil
+                                                         error:error]) {
+        return nil;
+    }
+    
+    NSMutableArray *array = [NSMutableArray array];
     for (int i = 0; i < ranges.count; i++) {
         O_item *item_range = ranges[i];
-        NSString *des = [folder_path stringByAppendingPathComponent:[NSString stringWithFormat:@"%d.part", i]];
+        NSString *des = [folder_path stringByAppendingPathComponent:[NSString stringWithFormat:@"%d.%@", i, pathExtension]];
         sucess = [self cut_video_src:src
                                  des:[NSURL fileURLWithPath:des]
                                range:item_range.time_range
                           presetName:preset_name
                       outputFileType:file_type
                                error:error];
-        if (!sucess) {
+        if (sucess) {
+            [array addObject:des];
+        }
+        else {
+            array = nil;
+            [[NSFileManager defaultManager] removeItemAtPath:folder_path error:nil];
             break;
         }
     }
     
-    return sucess;
+    return [NSArray arrayWithArray:array];
 }
 
 + (BOOL)stitch_videos:(NSArray *)videos
@@ -214,29 +235,45 @@
     
 	AVMutableComposition *composition = [AVMutableComposition composition];
     
-    CMTime position = kCMTimeZero;
+    AVMutableCompositionTrack *videoTrack =
+    [composition
+     addMutableTrackWithMediaType:AVMediaTypeVideo
+     preferredTrackID:kCMPersistentTrackID_Invalid];
+    
+    AVMutableCompositionTrack *audioTrack =
+    [composition
+     addMutableTrackWithMediaType:AVMediaTypeAudio
+     preferredTrackID:kCMPersistentTrackID_Invalid];
+    
     for (int i = 0; i < videos.count; i++) {
         NSURL *src = videos[i];
         AVURLAsset * sourceAsset = [[AVURLAsset alloc] initWithURL:src options:nil];
         CMTimeRange range = CMTimeRangeMake(kCMTimeZero, sourceAsset.duration);
         
         for (AVAssetTrack *track in [sourceAsset tracks]) {
-            AVMutableCompositionTrack *compositionTrack =
-            [composition
-             addMutableTrackWithMediaType:track.mediaType
-             preferredTrackID:kCMPersistentTrackID_Invalid];
-            
-            if (![compositionTrack insertTimeRange:range
-                                           ofTrack:track
-                                            atTime:position
-                                             error:nil]) {
-                sourceAsset = nil;
-                return NO;
+            if ([track.mediaType isEqualToString:AVMediaTypeAudio]) {
+                if (![audioTrack insertTimeRange:range
+                                         ofTrack:track
+                                          atTime:kCMTimeInvalid
+                                           error:error]) {
+                    sourceAsset = nil;
+                    return NO;
+                }
             }
-            compositionTrack.preferredTransform = track.preferredTransform;
+            else if ([track.mediaType isEqualToString:AVMediaTypeVideo]) {
+                if (![videoTrack insertTimeRange:range
+                                         ofTrack:track
+                                          atTime:kCMTimeInvalid
+                                           error:error]) {
+                    sourceAsset = nil;
+                    return NO;
+                }
+                videoTrack.preferredTransform = track.preferredTransform;
+            }
+            else {
+                NSLog(@"%@", track.mediaType);
+            }
         }
-        
-        position = CMTimeAdd(position, range.duration);
     }
     
     AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:composition presetName:preset_name];
@@ -439,17 +476,6 @@
 
 + (BOOL)watermark_video_src:(NSURL *)src
                         des:(NSURL *)des
-                      marks:(NSArray *)marks
-                 presetName:(NSString *)preset_name
-             outputFileType:(NSString *)file_type
-                      error:(NSError **)error
-{
-    
-    return NO;
-}
-
-+ (BOOL)watermark_video_src:(NSURL *)src
-                        des:(NSURL *)des
                   markLayer:(CALayer *)mark_layer
                  presetName:(NSString *)preset_name
              outputFileType:(NSString *)file_type
@@ -495,44 +521,50 @@
         return NO;
     }
     
-    AVMutableVideoComposition *mark_composition =
-    [AVMutableVideoComposition videoComposition];
-    
-    mark_composition.renderSize = track_video_src.naturalSize;
-    mark_composition.frameDuration = track_video_src.timeRange.duration;
-    
-    CALayer *parentLayer = [CALayer layer];
-    CALayer *videoLayer = [CALayer layer];
-    parentLayer.frame = CGRectMake(0.f, 0.f, track_video_src.naturalSize.width, track_video_src.naturalSize.height);
-    videoLayer.frame = CGRectMake(0.f, 0.f, track_video_src.naturalSize.width, track_video_src.naturalSize.height);
-    [parentLayer addSublayer:videoLayer];
-    [parentLayer addSublayer:mark_layer];
-    
-    mark_composition.animationTool =
-    [AVVideoCompositionCoreAnimationTool
-     videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer
-     inLayer:parentLayer];
-    
-    AVMutableVideoCompositionInstruction *mark_composition_instruction =
-    [AVMutableVideoCompositionInstruction videoCompositionInstruction];
-    
-    [mark_composition_instruction setTimeRange:CMTimeRangeMake(kCMTimeZero, [composition duration])];
-    
-    AVMutableVideoCompositionLayerInstruction *mark_layer_instruction =
-    [AVMutableVideoCompositionLayerInstruction
-     videoCompositionLayerInstructionWithAssetTrack:track_video_src];
-    
-    [mark_layer_instruction setTransform:track_video_src.preferredTransform
-                                                     atTime:kCMTimeZero];
-    
-    mark_composition_instruction.layerInstructions = @[mark_layer_instruction];
-    
-    mark_composition.instructions = @[mark_composition_instruction];
+    AVMutableVideoComposition *mark_composition = nil;
+    if (mark_layer) {
+        mark_composition =
+        [AVMutableVideoComposition videoComposition];
+        
+        mark_composition.renderSize = track_video_src.naturalSize;
+        mark_composition.frameDuration = track_video_src.timeRange.duration;
+        
+        CALayer *parentLayer = [CALayer layer];
+        CALayer *videoLayer = [CALayer layer];
+        parentLayer.frame = CGRectMake(0.f, 0.f, track_video_src.naturalSize.width, track_video_src.naturalSize.height);
+        videoLayer.frame = CGRectMake(0.f, 0.f, track_video_src.naturalSize.width, track_video_src.naturalSize.height);
+        [parentLayer addSublayer:videoLayer];
+        [parentLayer addSublayer:mark_layer];
+        
+        mark_composition.animationTool =
+        [AVVideoCompositionCoreAnimationTool
+         videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer
+         inLayer:parentLayer];
+        
+        AVMutableVideoCompositionInstruction *mark_composition_instruction =
+        [AVMutableVideoCompositionInstruction videoCompositionInstruction];
+        
+        [mark_composition_instruction setTimeRange:CMTimeRangeMake(kCMTimeZero, [composition duration])];
+        
+        AVMutableVideoCompositionLayerInstruction *mark_layer_instruction =
+        [AVMutableVideoCompositionLayerInstruction
+         videoCompositionLayerInstructionWithAssetTrack:track_video_src];
+        
+        [mark_layer_instruction setTransform:track_video_src.preferredTransform
+                                      atTime:kCMTimeZero];
+        
+        mark_composition_instruction.layerInstructions = @[mark_layer_instruction];
+        
+        mark_composition.instructions = @[mark_composition_instruction];
+    }
     
     AVAssetExportSession *exporter =
     [[AVAssetExportSession alloc] initWithAsset:composition
                                      presetName:preset_name];
-    [exporter setVideoComposition:mark_composition];
+    if (mark_layer) {
+        [exporter setVideoComposition:mark_composition];
+    }
+    
     [exporter setOutputURL:des];
     exporter.outputFileType = file_type;//@"com.apple.quicktime-movie";
     [exporter setShouldOptimizeForNetworkUse:YES];
@@ -582,6 +614,72 @@
     exporter = nil;
 
     return success;
+}
+
++ (BOOL)watermark_video_src:(NSURL *)src
+                        des:(NSURL *)des
+                      marks:(NSArray *)marks
+                 presetName:(NSString *)preset_name
+             outputFileType:(NSString *)file_type
+                      error:(NSError **)error
+{
+    NSString *tmp_folder = [NSTemporaryDirectory() stringByAppendingPathComponent:des.lastPathComponent];
+    NSString *src_folder = [tmp_folder stringByAppendingPathComponent:@"src"];
+    
+    NSArray *src_array =
+    [self split_video_src:src
+                to_folder:src_folder
+                   ranges:marks
+               presetName:preset_name
+           outputFileType:AVFileTypeQuickTimeMovie
+            pathExtension:@"mov"
+                    error:error];
+    
+    if (!src_array) {
+        [[NSFileManager defaultManager] removeItemAtPath:tmp_folder error:nil];
+        return NO;
+    }
+    
+    if (src_array.count != marks.count) {
+        [[NSFileManager defaultManager] removeItemAtPath:tmp_folder error:nil];
+        return NO;
+    }
+    
+    NSString *des_folder = [tmp_folder stringByAppendingPathComponent:@"des"];
+    
+    NSMutableArray *des_array = [NSMutableArray array];
+    
+    [[NSFileManager defaultManager] createDirectoryAtPath:des_folder withIntermediateDirectories:YES attributes:nil error:nil];
+    
+    for (int i = 0; i < marks.count; i++) {
+        O_item *mark = marks[i];
+        NSString *src_path = src_array[i];
+        NSString *des_path = [des_folder stringByAppendingPathComponent:src_path.lastPathComponent];
+        BOOL sucess =
+        [self watermark_video_src:[NSURL fileURLWithPath:src_path]
+                              des:[NSURL fileURLWithPath:des_path]
+                        markLayer:mark.layer_watermark
+                       presetName:preset_name
+                   outputFileType:file_type
+                            error:error];
+        if (!sucess) {
+            des_array = nil;
+            [[NSFileManager defaultManager] removeItemAtPath:tmp_folder error:nil];
+            return NO;
+        }
+        else {
+            [des_array addObject:[NSURL fileURLWithPath:des_path]];
+        }
+    }
+    
+    BOOL sucess =
+    [self stitch_videos:des_array
+                    des:des
+             presetName:preset_name
+         outputFileType:file_type
+                  error:error];
+    
+    return sucess;
 }
 
 @end

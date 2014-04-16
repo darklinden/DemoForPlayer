@@ -48,6 +48,20 @@
        outputFileType:(NSString *)file_type
                 error:(NSError **)error;
 
++ (NSArray *)split_video_src:(NSURL *)src
+                   to_folder:(NSString *)folder_path
+                      ranges:(NSArray *)ranges
+                  presetName:(NSString *)preset_name
+              outputFileType:(NSString *)file_type
+               pathExtension:(NSString *)pathExtension
+                       error:(NSError **)error;
+
++ (BOOL)stitch_videos:(NSArray *)videos
+                  des:(NSURL*)des
+           presetName:(NSString *)preset_name
+       outputFileType:(NSString *)file_type
+                error:(NSError **)error;
+
 + (NSMutableArray *)get_photo_groups;
 
 + (NSMutableArray *)get_videos;
@@ -59,6 +73,13 @@
 + (BOOL)watermark_video_src:(NSURL *)src
                         des:(NSURL *)des
                   markLayer:(CALayer *)mark_layer
+                 presetName:(NSString *)preset_name
+             outputFileType:(NSString *)file_type
+                      error:(NSError **)error;
+
++ (BOOL)watermark_video_src:(NSURL *)src
+                        des:(NSURL *)des
+                      marks:(NSArray *)marks
                  presetName:(NSString *)preset_name
              outputFileType:(NSString *)file_type
                       error:(NSError **)error;
