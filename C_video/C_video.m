@@ -111,8 +111,19 @@
     exporter.outputURL = des;
     exporter.outputFileType = AVFileTypeAppleM4A;
 	
+    __block BOOL success = NO;
+    
     [exporter exportAsynchronouslyWithCompletionHandler:^(void) {
-        sourceAsset = nil;
+        if (exporter.status == AVAssetExportSessionStatusCompleted) {
+            success = YES;
+        }
+        
+        NSError *err = [exporter error];
+        
+        if (err) {
+            *error = err;
+            NSLog(@"export error: %@", err);
+        }
         isDone = YES;
     }];
     
@@ -122,7 +133,7 @@
     
     exporter = nil;
     
-    return YES;
+    return success;
 }
 
 + (BOOL)cut_video_src:(NSURL*)src
@@ -162,9 +173,21 @@
     exporter.outputURL = des;
 	
     exporter.outputFileType = file_type;
+    
+    __block BOOL success = NO;
 	
     [exporter exportAsynchronouslyWithCompletionHandler:^(void) {
-        sourceAsset = nil;
+        if (exporter.status == AVAssetExportSessionStatusCompleted) {
+            success = YES;
+        }
+        
+        NSError *err = [exporter error];
+        
+        if (err) {
+            *error = err;
+            NSLog(@"export error: %@", err);
+        }
+        
         isDone = YES;
     }];
     
@@ -174,7 +197,7 @@
     
     exporter = nil;
     
-    return YES;
+    return success;
 }
 
 + (NSArray *)split_video_src:(NSURL *)src
@@ -271,7 +294,7 @@
                 videoTrack.preferredTransform = track.preferredTransform;
             }
             else {
-                NSLog(@"%@", track.mediaType);
+                NSLog(@"media type unknown: %@", track.mediaType);
             }
         }
     }
@@ -281,8 +304,21 @@
     exporter.outputURL = des;
 	
     exporter.outputFileType = file_type;
+    
+    __block BOOL success = NO;
 	
     [exporter exportAsynchronouslyWithCompletionHandler:^(void) {
+        if (exporter.status == AVAssetExportSessionStatusCompleted) {
+            success = YES;
+        }
+        
+        NSError *err = [exporter error];
+        
+        if (err) {
+            *error = err;
+            NSLog(@"export error: %@", err);
+        }
+        
         isDone = YES;
     }];
     
@@ -292,7 +328,7 @@
     
     exporter = nil;
     
-    return YES;
+    return success;
 }
 
 + (NSMutableArray *)get_photo_groups
@@ -481,10 +517,7 @@
              outputFileType:(NSString *)file_type
                       error:(NSError **)error
 {
-    NSLog(@"src : %@ \n des: %@", src, des);
     AVAsset *asset_src = [AVAsset assetWithURL:src];
-    
-    NSLog(@"视频时长 %llu", [self video_length:src]);
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:[des path]]) {
         if (![[NSFileManager defaultManager] removeItemAtPath:[des path] error:error]) {
@@ -501,8 +534,9 @@
         AVMutableCompositionTrack *track_des =
         [composition addMutableTrackWithMediaType:track_src.mediaType
                                  preferredTrackID:kCMPersistentTrackID_Invalid];
+        
         BOOL success =
-        [track_des insertTimeRange:track_src.timeRange
+        [track_des insertTimeRange:CMTimeRangeMake(CMTimeMake(1, 30), CMTimeMakeWithSeconds(CMTimeGetSeconds(track_src.timeRange.duration), 30))
                            ofTrack:track_src
                             atTime:kCMTimeZero
                              error:error];
@@ -518,6 +552,7 @@
     if (!track_video_src
         || !track_video_des) {
         *error = [NSError errorWithDomain:@"No video track found in video." code:-1 userInfo:nil];
+        NSLog(@"No video track found in video.");
         return NO;
     }
     
@@ -527,7 +562,7 @@
         [AVMutableVideoComposition videoComposition];
         
         mark_composition.renderSize = track_video_src.naturalSize;
-        mark_composition.frameDuration = track_video_src.timeRange.duration;
+        mark_composition.frameDuration = CMTimeMake(1, 30);
         
         CALayer *parentLayer = [CALayer layer];
         CALayer *videoLayer = [CALayer layer];
@@ -567,40 +602,21 @@
     
     [exporter setOutputURL:des];
     exporter.outputFileType = file_type;//@"com.apple.quicktime-movie";
-    [exporter setShouldOptimizeForNetworkUse:YES];
+//    [exporter setShouldOptimizeForNetworkUse:YES];
     
     __block BOOL isDone = NO;
     __block BOOL success = NO;
     
     [exporter exportAsynchronouslyWithCompletionHandler:^(void){
-        switch (exporter.status) {
-            case AVAssetExportSessionStatusUnknown:
-                NSLog(@"AVAssetExportSessionStatusUnknown");
-                break;
-            case AVAssetExportSessionStatusWaiting:
-                NSLog(@"AVAssetExportSessionStatusWaiting");
-                break;
-            case AVAssetExportSessionStatusExporting:
-                NSLog(@"AVAssetExportSessionStatusExporting");
-                break;
-            case AVAssetExportSessionStatusCompleted:
-                NSLog(@"AVAssetExportSessionStatusCompleted");
-                success = YES;
-                break;
-            case AVAssetExportSessionStatusFailed:
-                NSLog(@"AVAssetExportSessionStatusFailed");
-                break;
-            case AVAssetExportSessionStatusCancelled:
-                NSLog(@"AVAssetExportSessionStatusCancelled");
-                break;
-            default:
-                NSLog(@"AVAssetExportSessionStatusUnknown");
-                break;
+        if (exporter.status == AVAssetExportSessionStatusCompleted) {
+            success = YES;
         }
         
         NSError *err = [exporter error];
+        
         if (err) {
             *error = err;
+            NSLog(@"export error: %@", err);
         }
         
         isDone = YES;
@@ -672,6 +688,7 @@
         }
     }
     
+    NSLog(@"stitch videos");
     BOOL sucess =
     [self stitch_videos:des_array
                     des:des

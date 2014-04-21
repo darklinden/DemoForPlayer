@@ -16,7 +16,14 @@
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor whiteColor];
-    VC_root *pVC_root = [[VC_root alloc] initWithNibName:@"VC_root" bundle:nil];
+    
+    VC_root *pVC_root = nil;
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+        pVC_root = [[VC_root alloc] initWithNibName:@"VC_root" bundle:nil];
+    }
+    else {
+        pVC_root = [[VC_root alloc] initWithNibName:@"VC_root_pad" bundle:nil];
+    }
     self.window.rootViewController = pVC_root;
     [self.window makeKeyAndVisible];
     return YES;

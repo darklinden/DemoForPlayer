@@ -19,6 +19,7 @@
 		20107F2E18FBB32700641D41 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20107F1618FBB32700641D41 /* UIKit.framework */; };
 		20107F3618FBB32700641D41 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 20107F3418FBB32700641D41 /* InfoPlist.strings */; };
 		20107F3818FBB32700641D41 /* DemoForPlayerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 20107F3718FBB32700641D41 /* DemoForPlayerTests.m */; };
+		2065D0561904B4FE0056F909 /* VC_root_pad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2065D0551904B4FE0056F909 /* VC_root_pad.xib */; };
 		20707E0F18FD0C4F00C37DE6 /* C_video.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707DFD18FD0C4F00C37DE6 /* C_video.m */; };
 		20707E1018FD0C4F00C37DE6 /* V_player.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707DFF18FD0C4F00C37DE6 /* V_player.m */; };
 		20707E1118FD0C4F00C37DE6 /* PBJGLProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = 20707E0218FD0C4F00C37DE6 /* PBJGLProgram.m */; };
@@ -71,6 +72,7 @@
 		20107F3318FBB32700641D41 /* DemoForPlayerTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DemoForPlayerTests-Info.plist"; sourceTree = "<group>"; };
 		20107F3518FBB32700641D41 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		20107F3718FBB32700641D41 /* DemoForPlayerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoForPlayerTests.m; sourceTree = "<group>"; };
+		2065D0551904B4FE0056F909 /* VC_root_pad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VC_root_pad.xib; sourceTree = "<group>"; };
 		20707DFC18FD0C4F00C37DE6 /* C_video.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = C_video.h; sourceTree = "<group>"; };
 		20707DFD18FD0C4F00C37DE6 /* C_video.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = C_video.m; sourceTree = "<group>"; };
 		20707DFE18FD0C4F00C37DE6 /* V_player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V_player.h; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 				20707E1918FD0C7200C37DE6 /* VC_root.h */,
 				20707E1A18FD0C7200C37DE6 /* VC_root.m */,
 				20707E1B18FD0C7200C37DE6 /* VC_root.xib */,
+				2065D0551904B4FE0056F909 /* VC_root_pad.xib */,
 				20707E3E18FD2E9E00C37DE6 /* VC_player.h */,
 				20707E3F18FD2E9E00C37DE6 /* VC_player.m */,
 				20707E4018FD2E9E00C37DE6 /* VC_player.xib */,
@@ -314,7 +317,7 @@
 		20107F0718FBB32700641D41 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = darklinden;
 				TargetAttributes = {
 					20107F2918FBB32700641D41 = {
@@ -351,6 +354,7 @@
 				20707E4218FD2E9E00C37DE6 /* VC_player.xib in Resources */,
 				20707E1818FD0C4F00C37DE6 /* logo.png in Resources */,
 				20707E1518FD0C4F00C37DE6 /* README.md in Resources */,
+				2065D0561904B4FE0056F909 /* VC_root_pad.xib in Resources */,
 				20C7626F18FE8170009BE9CF /* 1.gif in Resources */,
 				20107F1D18FBB32700641D41 /* InfoPlist.strings in Resources */,
 				20107F2518FBB32700641D41 /* Images.xcassets in Resources */,
@@ -428,7 +432,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -468,7 +471,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -501,7 +503,6 @@
 		20107F3C18FBB32700641D41 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -516,7 +517,6 @@
 		20107F3D18FBB32700641D41 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -531,7 +531,6 @@
 		20107F3F18FBB32700641D41 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/DemoForPlayer.app/DemoForPlayer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -554,7 +553,6 @@
 		20107F4018FBB32700641D41 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/DemoForPlayer.app/DemoForPlayer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",

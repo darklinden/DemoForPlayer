@@ -41,9 +41,13 @@
 
 + (void)play:(NSURL *)url
 {
+    UIViewController *root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
     VC_player *pVC_player = [[VC_player alloc] initWithNibName:@"VC_player" bundle:nil];
     UINavigationController *nv = [[UINavigationController alloc] initWithRootViewController:pVC_player];
-    [[[[[UIApplication sharedApplication] delegate] window] rootViewController] presentViewController:nv animated:YES completion:^{
+    pVC_player.view.frame = root.view.frame;
+    nv.view.frame = root.view.frame;
+    
+    [root presentViewController:nv animated:YES completion:^{
         [pVC_player play:url];
     }];
 }

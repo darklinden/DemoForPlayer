@@ -88,18 +88,48 @@
         [vision setCameraDevice:PBJCameraDeviceFront];
     }
     
-    [vision setCaptureSessionPreset:AVCaptureSessionPreset640x480];
-    [vision setCameraMode:PBJCameraModeVideo];
-    [vision setCameraOrientation:PBJCameraOrientationPortrait];
-    [vision setFocusMode:PBJFocusModeContinuousAutoFocus];
-    [vision setOutputFormat:PBJOutputFormatSquare];
-    [vision setVideoRenderingEnabled:YES];
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+        [vision setCaptureSessionPreset:AVCaptureSessionPreset640x480];
+        [vision setCameraMode:PBJCameraModeVideo];
+        [vision setCameraOrientation:PBJCameraOrientationPortrait];
+        [vision setFocusMode:PBJFocusModeContinuousAutoFocus];
+        [vision setOutputFormat:PBJOutputFormatSquare];
+        [vision setVideoRenderingEnabled:YES];
+    }
+    else {
+        [vision setCaptureSessionPreset:AVCaptureSessionPreset640x480];
+        [vision setCameraMode:PBJCameraModeVideo];
+        
+        switch (self.interfaceOrientation) {
+            case UIInterfaceOrientationPortrait:
+                [vision setCameraOrientation:PBJCameraOrientationPortrait];
+                break;
+            case UIInterfaceOrientationPortraitUpsideDown:
+                [vision setCameraOrientation:PBJCameraOrientationPortraitUpsideDown];
+                break;
+            case UIInterfaceOrientationLandscapeRight:
+                [vision setCameraOrientation:PBJCameraOrientationLandscapeRight];
+                break;
+            case UIInterfaceOrientationLandscapeLeft:
+                [vision setCameraOrientation:PBJCameraOrientationLandscapeLeft];
+                break;
+            default:
+                [vision setCameraOrientation:PBJCameraOrientationPortrait];
+                break;
+        }
+        
+        [vision setFocusMode:PBJFocusModeContinuousAutoFocus];
+        [vision setOutputFormat:PBJOutputFormatSquare];
+        [vision setVideoRenderingEnabled:YES];
+    }
 }
 
 #pragma mark - ibaction
 - (IBAction)pBtn_start_record_clicked:(id)sender {
     [UIApplication sharedApplication].idleTimerDisabled = YES;
     [[PBJVision sharedInstance] startVideoCapture];
+    
+    [self performSelector:@selector(pBtn_save_clicked:) withObject:nil afterDelay:12.f];
 }
 
 - (IBAction)pBtn_pause_record_clicked:(id)sender {
@@ -120,6 +150,7 @@
 }
 
 - (IBAction)pBtn_save_clicked:(id)sender {
+    NSLog(@"%s", __FUNCTION__);
     [UIApplication sharedApplication].idleTimerDisabled = NO;
     [[PBJVision sharedInstance] endVideoCapture];
 }
@@ -224,13 +255,15 @@
     
 //    /*
      //拆分视频并逐个创建字幕
+    NSLog(@"视频长度：%llus", [C_video video_length:[NSURL fileURLWithPath:src]]);
+    
     CMTimeRange range = [C_video video_range:[NSURL fileURLWithPath:src]];
     NSMutableArray *array = [NSMutableArray array];
     
     CMTime position = kCMTimeZero;
-    CMTime duration = CMTimeMakeWithSeconds(2, 30);
+    CMTime duration = CMTimeMakeWithSeconds(1, 30);
     
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 10; i++) {
         O_item *mark = [O_item watermark];
         mark.time_range = CMTimeRangeMake(position, duration);
         [array addObject:mark];
@@ -238,11 +271,11 @@
         CATextLayer *t_layer = [[CATextLayer alloc] init];
         t_layer.string = [NSString stringWithFormat:@"%d", i];
         t_layer.font = (__bridge CFTypeRef)(@"Helvetica");
-        t_layer.fontSize = 50.0f;
+        t_layer.fontSize = 100.0f;
         t_layer.shadowOpacity = 0.6f ;
         t_layer.backgroundColor = [UIColor clearColor].CGColor;
         t_layer.foregroundColor = [UIColor redColor].CGColor;
-        t_layer.frame = CGRectMake(0.f, 0.f, 100.f, 100.f);
+        t_layer.frame = CGRectMake(0.f, 0.f, 200.f, 200.f);
         mark.layer_watermark = t_layer;
         
         position = CMTimeAdd(position, duration);
@@ -252,15 +285,26 @@
     mark.time_range = CMTimeRangeMake(position, CMTimeSubtract(range.duration, position));
     [array addObject:mark];
     
-     NSError *err = nil;
-    [C_video watermark_video_src:[NSURL fileURLWithPath:src]
-                             des:[NSURL fileURLWithPath:des]
-                           marks:array
-                      presetName:AVAssetExportPreset640x480
-                  outputFileType:AVFileTypeQuickTimeMovie
-                           error:&err];
+    BOOL success = NO;
+    NSError *err = nil;
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+        success = [C_video watermark_video_src:[NSURL fileURLWithPath:src]
+                                 des:[NSURL fileURLWithPath:des]
+                               marks:array
+                          presetName:AVAssetExportPreset640x480
+                      outputFileType:AVFileTypeQuickTimeMovie
+                               error:&err];
+    }
+    else {
+       success = [C_video watermark_video_src:[NSURL fileURLWithPath:src]
+                                 des:[NSURL fileURLWithPath:des]
+                               marks:array
+                          presetName:AVAssetExportPreset640x480
+                      outputFileType:AVFileTypeQuickTimeMovie
+                               error:&err];
+    }
     
-    NSLog(@"%@", err);
+    NSLog(@"success: %d error: %@", success, err);
 //    */
     
     //创建动态字幕
@@ -317,19 +361,15 @@
     
 //    UIImage *image1 = [UIImage imageNamed:@"logo.png"];
 //    UIImage *image2 = [UIImage imageNamed:@"1.gif"];
-//    
 //    CALayer *img_layer = [CALayer layer];
 //    img_layer.frame = CGRectMake(0, 0, 100, 100);
 //    img_layer.contents = (id)image1.CGImage;
-//    
 //    CABasicAnimation *crossFade = [CABasicAnimation animationWithKeyPath:@"contents"];
 //    crossFade.duration = 5.0;
 //    crossFade.fromValue = (__bridge id)(image1.CGImage);
 //    crossFade.toValue = (__bridge id)(image2.CGImage);
 //    [img_layer addAnimation:crossFade forKey:@"animateContents"];
-//    
-////    [self.view.layer addSublayer:img_layer];
-//    
+//    [self.view.layer addSublayer:img_layer];
 //    NSError *err = nil;
 //    [C_video watermark_video_src:[NSURL fileURLWithPath:src]
 //                             des:[NSURL fileURLWithPath:des]
