@@ -2,7 +2,7 @@
 //  AppDelegate.m
 //  DemoForPlayer
 //
-//  Created by user_admin on A/14/2014.
+//  Created by darklinden on A/14/2014.
 //  Copyright (c) 2014 darklinden. All rights reserved.
 //
 
