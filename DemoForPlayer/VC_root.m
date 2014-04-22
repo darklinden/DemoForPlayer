@@ -97,7 +97,7 @@
         [vision setVideoRenderingEnabled:YES];
     }
     else {
-        [vision setCaptureSessionPreset:AVCaptureSessionPreset640x480];
+        [vision setCaptureSessionPreset:AVCaptureSessionPreset1920x1080];
         [vision setCameraMode:PBJCameraModeVideo];
         
         switch (self.interfaceOrientation) {
@@ -119,7 +119,7 @@
         }
         
         [vision setFocusMode:PBJFocusModeContinuousAutoFocus];
-        [vision setOutputFormat:PBJOutputFormatSquare];
+        [vision setOutputFormat:PBJOutputFormatPreset];
         [vision setVideoRenderingEnabled:YES];
     }
 }
@@ -128,8 +128,6 @@
 - (IBAction)pBtn_start_record_clicked:(id)sender {
     [UIApplication sharedApplication].idleTimerDisabled = YES;
     [[PBJVision sharedInstance] startVideoCapture];
-    
-    [self performSelector:@selector(pBtn_save_clicked:) withObject:nil afterDelay:12.f];
 }
 
 - (IBAction)pBtn_pause_record_clicked:(id)sender {
@@ -255,17 +253,20 @@
     
 //    /*
      //拆分视频并逐个创建字幕
-    NSLog(@"视频长度：%llus", [C_video video_length:[NSURL fileURLWithPath:src]]);
-    
+    NSLog(@"second length：%llu", [C_video video_length:[NSURL fileURLWithPath:src]]);
+    CMTimeScale timescale = [C_video video_fps:[NSURL fileURLWithPath:src]];
     CMTimeRange range = [C_video video_range:[NSURL fileURLWithPath:src]];
     NSMutableArray *array = [NSMutableArray array];
     
     CMTime position = kCMTimeZero;
-    CMTime duration = CMTimeMakeWithSeconds(1, 30);
+    CMTime duration = CMTimeMake(timescale, timescale);
     
-    for (int i = 0; i < 10; i++) {
-        O_item *mark = [O_item watermark];
-        mark.time_range = CMTimeRangeMake(position, duration);
+    int cnt = CMTimeGetSeconds(range.duration);
+    
+    for (int i = 0; i < cnt; i++) {
+        O_item *mark = [O_item item];
+        CMTime tmp_duration = CMTimeMake(timescale + 3, timescale);
+        mark.time_range = CMTimeRangeMake(position, tmp_duration);
         [array addObject:mark];
         
         CATextLayer *t_layer = [[CATextLayer alloc] init];
@@ -278,13 +279,15 @@
         t_layer.frame = CGRectMake(0.f, 0.f, 200.f, 200.f);
         mark.layer_watermark = t_layer;
         
-        position = CMTimeAdd(position, duration);
+        position = CMTimeMake(position.value + duration.value - 1, timescale);
     }
     
-    O_item *mark = [O_item watermark];
-    mark.time_range = CMTimeRangeMake(position, CMTimeSubtract(range.duration, position));
+    O_item *mark = [O_item item];
+    mark.time_range = CMTimeRangeMake(position,
+                                     CMTimeMake(CMTimeGetSeconds(range.duration) * timescale, timescale));
     [array addObject:mark];
     
+    NSDate *old = [NSDate date];
     BOOL success = NO;
     NSError *err = nil;
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
@@ -299,12 +302,19 @@
        success = [C_video watermark_video_src:[NSURL fileURLWithPath:src]
                                  des:[NSURL fileURLWithPath:des]
                                marks:array
-                          presetName:AVAssetExportPreset640x480
+                          presetName:AVAssetExportPreset1920x1080
                       outputFileType:AVFileTypeQuickTimeMovie
                                error:&err];
     }
     
     NSLog(@"success: %d error: %@", success, err);
+    
+    float fsecond = - old.timeIntervalSinceNow;
+    NSString *msg = [NSString stringWithFormat:@"success: %d error: %@ time cost %fs, tap <play save> to play.", success, err, fsecond];
+    
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Over" message:msg delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+    [alert show];
+    
 //    */
     
     //创建动态字幕

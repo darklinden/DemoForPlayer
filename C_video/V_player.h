@@ -2,7 +2,7 @@
 //  V_player.h
 //  DemoForMultiStreamPlayer
 //
-//  Created by darklinden DarkLinden on 7/3/12.
+//  Created by darklinden on 7/3/12.
 //  Copyright (c) 2012 darklinden. All rights reserved.
 //
 

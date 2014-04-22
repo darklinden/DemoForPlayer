@@ -2,7 +2,7 @@
 //  C_video.h
 //  DemoForMultiStreamPlayer
 //
-//  Created by darklinden DarkLinden on 7/4/12.
+//  Created by darklinden on 7/4/12.
 //  Copyright (c) 2012 darklinden. All rights reserved.
 //
 
@@ -23,7 +23,7 @@
 @property (nonatomic, assign) CMTimeRange time_range;
 @property (nonatomic, strong) CALayer     *layer_watermark;
 
-+ (id)watermark;
++ (id)item;
 
 @end
 
@@ -32,6 +32,8 @@
 + (int64_t)video_length:(NSURL *)videoUrl;
 
 + (CMTimeRange)video_range:(NSURL *)videoUrl;
+
++ (CMTimeScale)video_fps:(NSURL *)videoUrl;
 
 + (void)set_thumb_image:(NSURL*)url
                 in_view:(UIImageView *)imgV
@@ -57,6 +59,7 @@
                        error:(NSError **)error;
 
 + (BOOL)stitch_videos:(NSArray *)videos
+               ranges:(NSArray *)ranges
                   des:(NSURL*)des
            presetName:(NSString *)preset_name
        outputFileType:(NSString *)file_type
@@ -75,6 +78,7 @@
                   markLayer:(CALayer *)mark_layer
                  presetName:(NSString *)preset_name
              outputFileType:(NSString *)file_type
+                      range:(O_item **)item_range
                       error:(NSError **)error;
 
 + (BOOL)watermark_video_src:(NSURL *)src
